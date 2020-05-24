@@ -1,7 +1,4 @@
-#Sat May 23 19:01:58 BRT 2020
-base.0=/home/filipe/Work-Station/development/projetao3/build/app/intermediates/dex/debug/mergeDexDebug/out/classes.dex
-path.1=classes.dex
-renamed.1=classes2.dex
+#Sun May 24 01:00:47 BRT 2020
+base.0=/home/filipe/Work-Station/development/Projetao3/build/app/intermediates/dex/debug/mergeDexDebug/out/classes.dex
 path.0=classes.dex
-renamed.0=classes3.dex
-base.1=/home/filipe/Work-Station/development/Projetao3/build/app/intermediates/dex/debug/mergeDexDebug/out/classes.dex
+renamed.0=classes.dex

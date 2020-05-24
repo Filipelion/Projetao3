@@ -164,13 +164,13 @@
       "languageVersion": "2.6"
     },
     {
-      "name": "projetao3",
+      "name": "Projetao3",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "2.7"
     }
   ],
-  "generated": "2020-05-23T21:57:36.291251Z",
+  "generated": "2020-05-24T03:58:49.082033Z",
   "generator": "pub",
   "generatorVersion": "2.8.2"
 }
