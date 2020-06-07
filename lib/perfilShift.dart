@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:oia/serviceRegistragion.dart';
+import 'serviceRegistragion.dart';
 
-void main() {
-  runApp(PerfiShift());
-}
 
-class PerfiShift extends StatelessWidget {
+
+class PerfilShift extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Ôia',
       theme: ThemeData(
-        //primarySwatch: Colors.yellow,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(),
@@ -57,10 +56,17 @@ class ContainerButtons extends StatelessWidget {
               "Prestar serviços",
               strutStyle: StrutStyle(fontFamily: "Roboto"),
             ),
-            onPressed: () {},
+            onPressed: () {
+              goToServiceRegistration(context);
+            },
           )
         ],
       ),
     );
   }
+}
+
+void goToServiceRegistration(BuildContext context) {
+  Navigator.push(
+      context, MaterialPageRoute(builder: (context) => ServiceRegistration()));
 }
