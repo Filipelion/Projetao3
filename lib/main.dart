@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: _buildRoutes(context),
       initialRoute: '/login',
+      debugShowCheckedModeBanner: false,
     );
   }
 
@@ -32,6 +33,7 @@ class Splash extends StatefulWidget {
 }
 
 class _SplashState extends State<Splash> {
+  // TODO: Importar o Firebase App no Material App
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -39,11 +41,14 @@ class _SplashState extends State<Splash> {
         children: [
           SplashScreen(
             seconds: 4,
-            backgroundColor: Color(0XFFFFBA00),
             navigateAfterSeconds: _loadNextPage(),
+            loaderColor: Colors.transparent,
           ),
           Container(
-            child: Image.network('assets/icons/logo.svg'),
+            color: Colors.yellow,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Text("Splash"),
           ),
         ],
       ),
