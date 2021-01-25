@@ -1,3 +1,4 @@
+import 'package:Projetao3/workersList.dart';
 import 'package:flutter/material.dart';
 import 'package:splashscreen/splashscreen.dart';
 import 'src/login.dart';
@@ -19,9 +20,10 @@ class MyApp extends StatelessWidget {
 
   _buildRoutes(context) {
     return {
-      '/login': (context) => LoginPage(),
+      '/login': (context) => Login(),
       '/register': (context) => RegisterPage(),
       '/registerPhoto': (context) => RegisterPhotoPage(),
+      '/workers': (context) => WorkersPage(),
       //'/perfilShift': (context)=> PerfiShift(),
     };
   }

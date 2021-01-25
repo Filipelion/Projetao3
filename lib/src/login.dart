@@ -1,15 +1,77 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../infrastructure/constants.dart';
 import '../infrastructure/loginAuth.dart';
 
-class LoginPage extends StatelessWidget {
-  final _auth = LoginAuth();
-  final _scaffoldState = GlobalKey<ScaffoldState>();
+class Login extends StatefulWidget {
+  @override
+  _LoginState createState() => _LoginState();
+}
 
-  _googleSignIn() {
+class _LoginState extends State<Login> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder(
+        future: _connectToFirebase(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return LoginPage();
+          } else if (snapshot.connectionState == ConnectionState.none) {
+            Scaffold.of(context).showBottomSheet((context) => Text(
+                "App temporariamente indisponível. Tente novamente mais tarde"));
+          }
+          return _buildLoadingPage();
+        },
+      ),
+    );
+  }
+
+  Future<FirebaseApp> _connectToFirebase() async {
+    return await Firebase.initializeApp();
+  }
+
+  Widget _buildLoadingPage() {
+    return Container(
+      color: Constants.COR_MOSTARDA,
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}
+
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _auth = LoginAuth();
+  GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _auth.authChangeListener();
+  }
+
+  void _googleSignIn() {
+    // _showLoadingSnackbar();
     _auth.signInWithGoogle().then((value) {
       if (value != null) {
-        _showLoadingSnackbar();
+        print(_auth.getUser());
+      } else {
+        _showErrorSnackbar();
+      }
+    });
+  }
+
+  void _facebookSignIn() {
+    _auth.signInWithFacebook().then((value) {
+      if (value != null) {
+        print(_auth.getUser());
+        // Navigator.pushNamed(context, '/workers');
       } else {
         _showErrorSnackbar();
       }
@@ -67,7 +129,7 @@ class LoginPage extends StatelessWidget {
                           color: Constants.COR_MOSTARDA,
                           fontSize: Constants.mediumFontSize),
                     ),
-                    onPressed: () {},
+                    onPressed: _googleSignIn,
                     color: Colors.black,
                   ),
                 ),
@@ -76,12 +138,13 @@ class LoginPage extends StatelessWidget {
                   width: screen.width * 0.8,
                   height: Constants.extraLargeSpace,
                   child: RaisedButton(
-                      // TODO: ADICIONAR A LOGO DO FACEBOOK PARA ESTE BOTÃO
-                      child: Text(
-                        "Login com Facebook",
-                        style: TextStyle(fontSize: Constants.mediumFontSize),
-                      ),
-                      onPressed: () {}),
+                    // TODO: ADICIONAR A LOGO DO FACEBOOK PARA ESTE BOTÃO
+                    child: Text(
+                      "Login com Facebook",
+                      style: TextStyle(fontSize: Constants.mediumFontSize),
+                    ),
+                    onPressed: _facebookSignIn,
+                  ),
                 ),
               ],
             ),
