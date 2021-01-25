@@ -4,43 +4,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
 class LoginAuth {
+  FirebaseAuth firebaseAuth;
+  LoginAuth({this.firebaseAuth});
+
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FacebookLogin _facebookLogin = FacebookLogin();
 
   User _currentUser;
 
   Future<void> signOut() async {
-    return await FirebaseAuth.instance.signOut();
+    return await firebaseAuth.signOut();
   }
 
   void authChangeListener() {
-    FirebaseAuth.instance.authStateChanges().listen((user) {
+    firebaseAuth.authStateChanges().listen((user) {
       _currentUser = user;
+      print(user.toString());
     });
-  }
-
-  Future<bool> userIsInDatabase() async {
-    try {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('Usuario')
-          .doc(_currentUser.uid)
-          .get();
-      return documentSnapshot.exists;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<bool> isTestDone() async {
-    try {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('Pontuacao')
-          .doc(_currentUser.uid)
-          .get();
-      return documentSnapshot.exists;
-    } catch (e) {
-      return false;
-    }
   }
 
   User getUser() {
@@ -52,11 +32,12 @@ class LoginAuth {
   }
 
   Future<Map> getGoogleTokens() async {
+    print("Getting tokens");
     final GoogleSignInAccount googleSignInAccount =
         await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
-
+    
     return {
       'idToken': googleSignInAuthentication.idToken,
       'accessToken': googleSignInAuthentication.accessToken
@@ -84,6 +65,8 @@ class LoginAuth {
       User user = await returnFirebaseUser(credential);
       return user;
     } catch (e) {
+            print("Aconteceu um erro: $e");
+
       return null;
     }
   }

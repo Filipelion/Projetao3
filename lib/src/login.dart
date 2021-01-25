@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../infrastructure/constants.dart';
@@ -9,6 +13,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  FirebaseAuth firebaseAuth;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +22,7 @@ class _LoginState extends State<Login> {
         future: _connectToFirebase(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return LoginPage();
+            return LoginPage(firebaseAuth: firebaseAuth);
           } else if (snapshot.connectionState == ConnectionState.none) {
             Scaffold.of(context).showBottomSheet((context) => Text(
                 "App temporariamente indisponível. Tente novamente mais tarde"));
@@ -28,7 +34,9 @@ class _LoginState extends State<Login> {
   }
 
   Future<FirebaseApp> _connectToFirebase() async {
-    return await Firebase.initializeApp();
+    FirebaseApp defaultApp = await Firebase.initializeApp();
+    firebaseAuth = FirebaseAuth.instanceFor(app: defaultApp);
+    return defaultApp;
   }
 
   Widget _buildLoadingPage() {
@@ -42,39 +50,43 @@ class _LoginState extends State<Login> {
 }
 
 class LoginPage extends StatefulWidget {
+  final FirebaseAuth firebaseAuth;
+  const LoginPage({Key key, this.firebaseAuth}) : super(key: key);
+  
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _auth = LoginAuth();
+  LoginAuth auth;
   GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
-    _auth.authChangeListener();
+    auth = LoginAuth(firebaseAuth: widget.firebaseAuth);
+    auth.authChangeListener();
   }
 
   void _googleSignIn() {
-    // _showLoadingSnackbar();
-    _auth.signInWithGoogle().then((value) {
-      if (value != null) {
-        print(_auth.getUser());
-      } else {
-        _showErrorSnackbar();
-      }
+    auth.signInWithGoogle().then((value) {
+        if(value != null) {
+          print(value.toString());
+          _showLoadingSnackbar();
+        } else {
+          _showErrorSnackbar();
+        }
     });
   }
 
   void _facebookSignIn() {
-    _auth.signInWithFacebook().then((value) {
-      if (value != null) {
-        print(_auth.getUser());
-        // Navigator.pushNamed(context, '/workers');
-      } else {
-        _showErrorSnackbar();
-      }
+    auth.signInWithFacebook().then((value) {
+      if(value != null) {
+          print(value.toString());
+          _showLoadingSnackbar();
+        } else {
+          _showErrorSnackbar();
+        }
     });
   }
 
@@ -93,6 +105,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
+      key: _scaffoldState,
       backgroundColor: Constants.COR_MOSTARDA,
       body: Container(
         padding: EdgeInsets.symmetric(
@@ -110,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                 this._buildLogo(),
                 Constants.LARGE_HEIGHT_BOX,
                 Text(
-                  "Seja bem vindo!",
+                  "Smart Work!",
                   style: TextStyle(fontSize: Constants.largeFontSize),
                 ),
               ],
@@ -127,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                       "Login com Google",
                       style: TextStyle(
                           color: Constants.COR_MOSTARDA,
-                          fontSize: Constants.mediumFontSize),
+                          fontSize: Constants.smallFontSize),
                     ),
                     onPressed: _googleSignIn,
                     color: Colors.black,
@@ -141,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                     // TODO: ADICIONAR A LOGO DO FACEBOOK PARA ESTE BOTÃO
                     child: Text(
                       "Login com Facebook",
-                      style: TextStyle(fontSize: Constants.mediumFontSize),
+                      style: TextStyle(fontSize: Constants.smallFontSize),
                     ),
                     onPressed: _facebookSignIn,
                   ),
