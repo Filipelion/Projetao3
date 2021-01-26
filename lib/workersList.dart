@@ -1,5 +1,6 @@
 import 'package:Projetao3/infrastructure/constants.dart';
 import 'package:flutter/material.dart';
+import './custom_widgets/oiaWidgets.dart';
 
 class WorkersPage extends StatefulWidget {
   @override
@@ -15,10 +16,7 @@ class _WorkersPageState extends State<WorkersPage> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Constants.COR_MOSTARDA,
-      ),
+    return OiaScaffold(
       body: WorkersList(),
     );
   }

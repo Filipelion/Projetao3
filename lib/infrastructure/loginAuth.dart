@@ -91,4 +91,16 @@ class LoginAuth {
       return null;
     }
   }
+
+  String getUserProfilePhoto() {
+    return this.getUser().photoURL;
+  }
+
+  String getUserProfileName() {
+    return this.getUser().displayName;
+  }
+
+  String getUserEmail() {
+    return this.getUser().email;
+  }
 }
