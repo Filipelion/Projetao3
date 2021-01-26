@@ -7,8 +7,8 @@ class LoginAuth {
   FirebaseAuth firebaseAuth;
   LoginAuth({this.firebaseAuth});
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final FacebookLogin _facebookLogin = FacebookLogin();
+  GoogleSignIn _googleSignIn =  GoogleSignIn();
+   FacebookLogin _facebookLogin = FacebookLogin();
 
   User _currentUser;
 
@@ -19,7 +19,6 @@ class LoginAuth {
   void authChangeListener() {
     firebaseAuth.authStateChanges().listen((user) {
       _currentUser = user;
-      print(user.toString());
     });
   }
 
@@ -31,32 +30,33 @@ class LoginAuth {
     return this.getUser() != null;
   }
 
-  Future<Map> getGoogleTokens() async {
-    print("Getting tokens");
-
-    final GoogleSignInAccount googleSignInAccount =
-        await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
-
-    return {
-      'idToken': googleSignInAuthentication.idToken,
-      'accessToken': googleSignInAuthentication.accessToken
-    };
-  }
-
   Future<User> returnFirebaseUser(AuthCredential credential) async {
+    /* Recebe como parâmetros as credenciais geradas pelo método de autenticação 
+    (no caso, Google ou Facebook) e retorna um Firebase User */
     final UserCredential authResult =
         await FirebaseAuth.instance.signInWithCredential(credential);
     final User user = authResult.user;
+    this._currentUser = user;
     return user;
   }
 
   Future<User> signInWithGoogle() async {
+    print("SignIn method called...");
     if (this.userIsLoggedIn()) return _currentUser;
 
     try {
-      Map googleTokens = await getGoogleTokens();
+
+      print("Trying to sign in");
+
+      final GoogleSignInAccount googleSignInAccount =
+        await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+      Map googleTokens = {
+        'idToken': googleSignInAuthentication.idToken,
+        'accessToken': googleSignInAuthentication.accessToken
+      };
 
       // O AuthCredential vem de qualquer AuthProvider (Facebook, Github, Linkedin, etc...)
       final AuthCredential credential = GoogleAuthProvider.credential(
@@ -64,6 +64,8 @@ class LoginAuth {
           accessToken: googleTokens['accessToken']);
 
       User user = await returnFirebaseUser(credential);
+      print(user.toString());
+
       return user;
     } catch (e) {
       print("Aconteceu um erro: $e");
@@ -75,6 +77,7 @@ class LoginAuth {
     if (this.userIsLoggedIn()) return _currentUser;
 
     try {
+      print("Getting Facebook Login Result...");
       final FacebookLoginResult loginResult =
           await _facebookLogin.logIn(["email"]);
       final String accessToken = loginResult.accessToken.token;

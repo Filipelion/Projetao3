@@ -8,6 +8,12 @@ class WorkersPage extends StatefulWidget {
 
 class _WorkersPageState extends State<WorkersPage> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // Navigator.pop(context);
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

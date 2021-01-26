@@ -69,13 +69,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _googleSignIn() {
+
     auth.signInWithGoogle().then((value) {
         if(value != null) {
-          print(value.toString());
           _showLoadingSnackbar();
+          _goToWorkersPage();
         } else {
           _showErrorSnackbar();
         }
+        print(value.toString());
     });
   }
 
@@ -84,10 +86,16 @@ class _LoginPageState extends State<LoginPage> {
       if(value != null) {
           print(value.toString());
           _showLoadingSnackbar();
+          _goToWorkersPage();
+          
         } else {
           _showErrorSnackbar();
         }
     });
+  }
+
+  _goToWorkersPage() {
+    Navigator.popAndPushNamed(context, '/workers');
   }
 
   _showLoadingSnackbar() {
