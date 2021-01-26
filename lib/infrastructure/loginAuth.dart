@@ -33,11 +33,12 @@ class LoginAuth {
 
   Future<Map> getGoogleTokens() async {
     print("Getting tokens");
+
     final GoogleSignInAccount googleSignInAccount =
         await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
-    
+
     return {
       'idToken': googleSignInAuthentication.idToken,
       'accessToken': googleSignInAuthentication.accessToken
@@ -65,14 +66,14 @@ class LoginAuth {
       User user = await returnFirebaseUser(credential);
       return user;
     } catch (e) {
-            print("Aconteceu um erro: $e");
-
+      print("Aconteceu um erro: $e");
       return null;
     }
   }
 
   Future<User> signInWithFacebook() async {
     if (this.userIsLoggedIn()) return _currentUser;
+
     try {
       final FacebookLoginResult loginResult =
           await _facebookLogin.logIn(["email"]);
