@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "803401508957",
+    "project_id": "oia-smartwork",
+    "storage_bucket": "oia-smartwork.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:803401508957:android:b932631b4900d693da45b4",
+        "android_client_info": {
+          "package_name": "com.example.projetao3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "803401508957-e4rd95vns2r2mfmlf1mpmfvh4a2mis82.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.projetao3",
+            "certificate_hash": "b61741f9ddde2a5ca9dedaa4929b8bc92461296f"
+          }
+        },
+        {
+          "client_id": "803401508957-rlpj8i5hc036gu2mckjol6gf0a5es6u8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.projetao3",
+            "certificate_hash": "24bc0f51ed414835a180781ac7d54ad401ac258f"
+          }
+        },
+        {
+          "client_id": "803401508957-l8dbgkoojei6rrcqkddb4k98iooqvfr5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBudzDiSPXFIEm4dUCW7gxovpKZX00bnMU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "803401508957-l8dbgkoojei6rrcqkddb4k98iooqvfr5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
