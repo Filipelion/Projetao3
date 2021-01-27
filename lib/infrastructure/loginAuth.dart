@@ -104,3 +104,7 @@ class LoginAuth {
     return this.getUser().email;
   }
 }
+
+class Authentication{
+  static LoginAuth loginAuth = LoginAuth(firebaseAuth: FirebaseAuth.instance);
+}

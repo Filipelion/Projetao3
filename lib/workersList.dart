@@ -16,9 +16,7 @@ class _WorkersPageState extends State<WorkersPage> {
   }
   @override
   Widget build(BuildContext context) {
-    return OiaScaffold(
-      body: WorkersList(),
-    );
+    return WorkersList();
   }
 }
 
@@ -30,6 +28,6 @@ class WorkersList extends StatefulWidget {
 class _WorkersListState extends State<WorkersList> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return OiaWorkersList();
   }
 }

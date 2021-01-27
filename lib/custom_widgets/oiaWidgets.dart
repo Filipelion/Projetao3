@@ -1,7 +1,64 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../infrastructure/constants.dart';
 import '../infrastructure/loginAuth.dart';
+
+
+
+class OiaWorkersList extends StatefulWidget {
+  @override
+  _OiaWorkersListState createState() => _OiaWorkersListState();
+}
+
+class _OiaWorkersListState extends State<OiaWorkersList> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: OiaSidebar(),
+          body: FutureBuilder(
+        future: getData(),
+        builder: (context, snapshot) {
+          if(snapshot.connectionState == ConnectionState.done) {
+            return CustomScrollView(
+              slivers: [
+                OiaFlexibleAppbar(),
+              ],
+            );
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        }),
+    );
+  }
+
+  getData() async {
+    Future.delayed(Duration(seconds: 2));
+    return await Firebase.initializeApp();
+  }
+}
+
+class OiaFlexibleAppbar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      backgroundColor: Constants.COR_MOSTARDA,
+      iconTheme: IconThemeData(color: Colors.black),
+      floating: true,
+      expandedHeight: 200,
+      flexibleSpace: Container(
+        margin: EdgeInsets.only(top: 20.0),
+        child: Column(children: [
+          Padding(padding: EdgeInsets.symmetric(horizontal: Constants.mediumSpace), child: Row(children: [
+            // Image.asset("assets/icons/satellite_icon.png"),
+            Text("Oia AppBarFlexible")
+          ],),),
+          TextField(decoration: InputDecoration(),),
+        ],),
+      ),
+    );
+  }
+}
 
 class OiaScaffold extends StatefulWidget {
   final String appBarTitle;
@@ -12,15 +69,12 @@ class OiaScaffold extends StatefulWidget {
 }
 
 class _OiaScaffoldState extends State<OiaScaffold> {
-  LoginAuth _auth;
-  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  LoginAuth auth = Authentication.loginAuth;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _auth = LoginAuth(firebaseAuth: firebaseAuth);
-    _auth.authChangeListener();
+    auth.authChangeListener();
   }
   
   @override
@@ -28,15 +82,13 @@ class _OiaScaffoldState extends State<OiaScaffold> {
     return Scaffold(
       appBar: AppBar(backgroundColor: Constants.COR_MOSTARDA, title: Text(widget.appBarTitle??"Oia"),),
       body: widget.body,
-      drawer: OiaSidebar(auth: _auth,),
+      drawer: OiaSidebar(),
     );
   }
 }
 
-
 class OiaSidebar extends StatelessWidget {
-  final LoginAuth auth;
-  const OiaSidebar({Key key, this.auth}) : super(key: key);
+  final LoginAuth auth = Authentication.loginAuth;
   
   @override
   Widget build(BuildContext context) {
