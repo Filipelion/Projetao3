@@ -1,14 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
 class LoginAuth {
   FirebaseAuth firebaseAuth;
   LoginAuth({this.firebaseAuth});
 
-  GoogleSignIn _googleSignIn =  GoogleSignIn();
-   FacebookLogin _facebookLogin = FacebookLogin();
+  GoogleSignIn _googleSignIn = GoogleSignIn();
+  FacebookLogin _facebookLogin = FacebookLogin();
 
   User _currentUser;
 
@@ -45,13 +44,12 @@ class LoginAuth {
     if (this.userIsLoggedIn()) return _currentUser;
 
     try {
-
       print("Trying to sign in");
 
       final GoogleSignInAccount googleSignInAccount =
-        await _googleSignIn.signIn();
+          await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+          await googleSignInAccount.authentication;
 
       Map googleTokens = {
         'idToken': googleSignInAuthentication.idToken,
@@ -105,6 +103,6 @@ class LoginAuth {
   }
 }
 
-class Authentication{
+class Authentication {
   static LoginAuth loginAuth = LoginAuth(firebaseAuth: FirebaseAuth.instance);
 }

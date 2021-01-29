@@ -1,3 +1,4 @@
+import 'package:Projetao3/infrastructure/constants.dart';
 import 'package:Projetao3/workersList.dart';
 import 'package:flutter/material.dart';
 import 'package:splashscreen/splashscreen.dart';
@@ -46,11 +47,14 @@ class _SplashState extends State<Splash> {
             navigateAfterSeconds: _loadNextPage(),
             loaderColor: Colors.transparent,
           ),
-          Container(
-            color: Colors.yellow,
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            child: Text("Splash"),
+          Scaffold(
+            backgroundColor: Constants.COR_MOSTARDA,
+            body: Center(
+              child: Image.asset(
+                'assets/icons/logo.png',
+                width: 100,
+              ),
+            ),
           ),
         ],
       ),
