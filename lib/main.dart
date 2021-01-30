@@ -2,9 +2,11 @@ import 'package:Projetao3/infrastructure/constants.dart';
 import 'package:Projetao3/workersList.dart';
 import 'package:flutter/material.dart';
 import 'package:splashscreen/splashscreen.dart';
+import 'serviceRegistragion.dart';
 import 'src/login.dart';
 import 'src/register.dart';
 import 'src/registerPhoto.dart';
+import 'workersList.dart';
 //import 'src/perfilShift.dart';
 
 void main() => runApp(MyApp());
@@ -25,6 +27,7 @@ class MyApp extends StatelessWidget {
       '/register': (context) => RegisterPage(),
       '/registerPhoto': (context) => RegisterPhotoPage(),
       '/workers': (context) => WorkersPage(),
+      '/service_registration' : (context) => ServiceRegistration()
       //'/perfilShift': (context)=> PerfiShift(),
     };
   }
@@ -44,7 +47,7 @@ class _SplashState extends State<Splash> {
         children: [
           SplashScreen(
             seconds: 4,
-            navigateAfterSeconds: _loadNextPage(),
+            navigateAfterSeconds: WorkersPage(),
             loaderColor: Colors.transparent,
           ),
           Scaffold(
@@ -59,11 +62,5 @@ class _SplashState extends State<Splash> {
         ],
       ),
     );
-  }
-
-  _loadNextPage() {
-    // TODO: Criar a página inicial que Felipe sugeriu
-    // por enquanto:
-    return LoginPage();
   }
 }

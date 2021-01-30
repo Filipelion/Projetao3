@@ -1,51 +1,98 @@
 import 'package:flutter/material.dart';
+import './custom_widgets/oiaWidgets.dart';
+import './infrastructure/loginAuth.dart';
+import './infrastructure/constants.dart';
+import 'infrastructure/constants.dart';
 
-class ServiceRegistration extends StatelessWidget {
+class ServiceRegistration extends StatefulWidget {
+  @override
+  _ServiceRegistrationState createState() => _ServiceRegistrationState();
+}
+
+class _ServiceRegistrationState extends State<ServiceRegistration> {
+  LoginAuth auth  = Authentication.loginAuth;
+  List<String> servicosUsuario = ["Teste", "Dois"];
+
+  final _formKey = GlobalKey<FormState>();
+  String textoEmBusca;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    auth.authChangeListener();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Color(0xFFFFBA00),
-            title: Container(
-              child: Row(
+    return OiaScaffold(
+      appBarTitle: auth.getUserProfileName(),
+      body: SafeArea(
+              child: Container(
+              margin: EdgeInsets.all(30),
+              child: Column(
                 children: <Widget>[
-                  Center(
-                    child: Text(
-                      "Nome do usuário",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  )
+                  Text("Quais serviços você faz?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: Constants.regularFontSize),),
+                  Constants.MEDIUM_HEIGHT_BOX,
+                      Form(
+                        key: _formKey,
+                           child: Row(
+                            children: [
+                              Flexible(
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    hintText: "Pesquisar serviço...", 
+                                    border: OutlineInputBorder(), 
+                                    fillColor: Constants.COR_MOSTARDA, 
+                                    isDense: true,
+                                  ),
+                                  onChanged: (texto) {
+                                    setState(() {
+                                      this.textoEmBusca = texto;
+                                    });
+                                  },
+                                ),
+                              ),
+                              IconButton(icon: Icon(Icons.search), onPressed: () {
+                                if(_formKey.currentState.validate()) {
+                                  setState(() {
+                                    servicosUsuario.add(this.textoEmBusca);
+                                  });
+                                }
+                              },)
+                            ],
+                          ),
+                      ),
+                      Constants.SMALL_HEIGHT_BOX,
+                      // IconButton(icon: , onPressed: null)
+                 Flexible(
+                      child: ListView.builder(
+                        physics: PageScrollPhysics(),
+                        reverse: true,
+                        itemCount: servicosUsuario.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  title: Text(servicosUsuario[index]),
+                                  // contentPadding: EdgeInsets.symmetric(vertical: Constants.smallSpace),
+                                  tileColor: Colors.grey[100],
+                                  dense: true,
+                                ),
+                                Divider()
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                 ),
+                  OiaLargeButton(title: "Continuar", onPressed: () {},)
                 ],
               ),
             ),
-          ),
-          body: Container(
-            margin: EdgeInsets.all(30),
-            child: Column(
-              children: <Widget>[
-                Text("Quais serviços você faz?"),
-                TextField(
-                  decoration: InputDecoration(hintText: "Pesquisar serviço..."),
-                ),
-                Container(
-                  width: 100,
-                  height: 100,
-                  child: ListView(
-                    children: <Widget>[],
-                  ),
-                ),
-                RaisedButton(
-                    color: Color(0xFF360E0E),
-                    child: Text(
-                      "Continuar",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () {}),
-              ],
-            ),
-          ),
-        ));
+      ),
+    );
+    
   }
 }

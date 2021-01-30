@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:Projetao3/infrastructure/database_integration.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -72,21 +73,21 @@ class _LoginPageState extends State<LoginPage> {
 
     auth.signInWithGoogle().then((value) {
         if(value != null) {
+          String id = value.uid;
           _showLoadingSnackbar();
-          _goToWorkersPage();
+          _goToNextPage(id);
         } else {
           _showErrorSnackbar();
         }
-        print(value.toString());
     });
   }
 
   void _facebookSignIn() {
     auth.signInWithFacebook().then((value) {
       if(value != null) {
-          print(value.toString());
+          String id = value.uid;
           _showLoadingSnackbar();
-          _goToWorkersPage();
+          _goToNextPage(id);
           
         } else {
           _showErrorSnackbar();
@@ -94,8 +95,14 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  _goToWorkersPage() {
-    Navigator.popAndPushNamed(context, '/workers');
+  _goToNextPage(String id) async {
+    debugPrint("goToNextPage was called");
+    if(await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id)) {
+      Navigator.popAndPushNamed(context, '/workers');
+    }
+    else {
+      Navigator.popAndPushNamed(context, '/service_registration');
+    }
   }
 
   _showLoadingSnackbar() {

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import '../infrastructure/constants.dart';
+import '../infrastructure/constants.dart';
 import '../infrastructure/loginAuth.dart';
 
 class OiaFlexibleAppbar extends StatelessWidget {
@@ -30,9 +31,9 @@ class OiaFlexibleAppbar extends StatelessWidget {
                   Container(
                     width: MediaQuery.of(context).size.width * 0.4,
                     child: Text(
-                      "Encontre profissionais",
+                      "Encontre\nprofissionais",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: Constants.mediumFontSize),
+                      style: TextStyle(fontSize: Constants.regularFontSize),
                     ),
                   )
                 ],
@@ -80,7 +81,8 @@ class _OiaScaffoldState extends State<OiaScaffold> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Constants.COR_MOSTARDA,
-        title: Text(widget.appBarTitle ?? "Oia"),
+        title: Text(widget.appBarTitle ?? "Oia", style: TextStyle(color: Colors.black),),
+        iconTheme: IconThemeData(color: Colors.black),
       ),
       body: widget.body,
       drawer: OiaSidebar(),
@@ -220,8 +222,23 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(
-              icon: Icon(Icons.add), label: "Adicionar trabalho"),
+              icon: Icon(Icons.add), label: "Anunciar"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil")
         ]);
+  }
+}
+
+class OiaLargeButton extends StatelessWidget {
+  String title;
+  Function onPressed;
+
+  OiaLargeButton({this.title, this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.8,
+      child: RaisedButton(child: Text(this.title, style: TextStyle(fontSize: Constants.regularFontSize, color: Colors.white),), onPressed: this.onPressed, color: Constants.COR_VINHO,),
+    );
   }
 }
