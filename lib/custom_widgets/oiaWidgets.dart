@@ -62,7 +62,10 @@ class OiaFlexibleAppbar extends StatelessWidget {
 class OiaScaffold extends StatefulWidget {
   final String appBarTitle;
   final Widget body;
-  const OiaScaffold({Key key, this.appBarTitle, this.body}) : super(key: key);
+  final bool showBottomBar;
+  const OiaScaffold(
+      {Key key, this.appBarTitle, this.body, this.showBottomBar = false})
+      : super(key: key);
   @override
   _OiaScaffoldState createState() => _OiaScaffoldState();
 }
@@ -81,11 +84,15 @@ class _OiaScaffoldState extends State<OiaScaffold> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Constants.COR_MOSTARDA,
-        title: Text(widget.appBarTitle ?? "Oia", style: TextStyle(color: Colors.black),),
+        title: Text(
+          widget.appBarTitle ?? "Oia",
+          style: TextStyle(color: Colors.black),
+        ),
         iconTheme: IconThemeData(color: Colors.black),
       ),
       body: widget.body,
       drawer: OiaSidebar(),
+      bottomNavigationBar: widget.showBottomBar ? OiaBottomBar() : null,
     );
   }
 }
@@ -221,8 +228,7 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
         backgroundColor: Constants.COR_MOSTARDA,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.add), label: "Anunciar"),
+          BottomNavigationBarItem(icon: Icon(Icons.add), label: "Anunciar"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil")
         ]);
   }
@@ -238,7 +244,45 @@ class OiaLargeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.8,
-      child: RaisedButton(child: Text(this.title, style: TextStyle(fontSize: Constants.regularFontSize, color: Colors.white),), onPressed: this.onPressed, color: Constants.COR_VINHO,),
+      child: RaisedButton(
+        child: Text(
+          this.title,
+          style: TextStyle(
+              fontSize: Constants.regularFontSize, color: Colors.white),
+        ),
+        onPressed: this.onPressed,
+        color: Constants.COR_VINHO,
+      ),
+    );
+  }
+}
+
+class OiaRoundedImage extends StatelessWidget {
+  double width, height, borderWidth;
+  ImageProvider image;
+  OiaRoundedImage({
+    Key key,
+    this.width,
+    this.height,
+    this.borderWidth,
+    this.image,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: this.height,
+      width: this.width,
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Constants.COR_MOSTARDA,
+            width: this.borderWidth,
+          ),
+          image: DecorationImage(
+            image: this.image,
+            fit: BoxFit.fill,
+          )),
     );
   }
 }

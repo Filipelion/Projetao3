@@ -1,4 +1,5 @@
 import 'package:Projetao3/infrastructure/constants.dart';
+import 'package:Projetao3/profile.dart';
 import 'package:Projetao3/workersList.dart';
 import 'package:flutter/material.dart';
 import 'package:splashscreen/splashscreen.dart';
@@ -27,8 +28,8 @@ class MyApp extends StatelessWidget {
       '/register': (context) => RegisterPage(),
       '/registerPhoto': (context) => RegisterPhotoPage(),
       '/workers': (context) => WorkersPage(),
-      '/service_registration' : (context) => ServiceRegistration()
-      //'/perfilShift': (context)=> PerfiShift(),
+      '/service_registration': (context) => ServiceRegistration(),
+      '/profile': (context) => Profile(),
     };
   }
 }

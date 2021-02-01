@@ -10,7 +10,7 @@ class ServiceRegistration extends StatefulWidget {
 }
 
 class _ServiceRegistrationState extends State<ServiceRegistration> {
-  LoginAuth auth  = Authentication.loginAuth;
+  LoginAuth auth = Authentication.loginAuth;
   List<String> servicosUsuario = ["Teste", "Dois"];
 
   final _formKey = GlobalKey<FormState>();
@@ -28,71 +28,85 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     return OiaScaffold(
       appBarTitle: auth.getUserProfileName(),
       body: SafeArea(
-              child: Container(
-              margin: EdgeInsets.all(30),
-              child: Column(
-                children: <Widget>[
-                  Text("Quais serviços você faz?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: Constants.regularFontSize),),
-                  Constants.MEDIUM_HEIGHT_BOX,
-                      Form(
-                        key: _formKey,
-                           child: Row(
-                            children: [
-                              Flexible(
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    hintText: "Pesquisar serviço...", 
-                                    border: OutlineInputBorder(), 
-                                    fillColor: Constants.COR_MOSTARDA, 
-                                    isDense: true,
-                                  ),
-                                  onChanged: (texto) {
-                                    setState(() {
-                                      this.textoEmBusca = texto;
-                                    });
-                                  },
-                                ),
-                              ),
-                              IconButton(icon: Icon(Icons.search), onPressed: () {
-                                if(_formKey.currentState.validate()) {
-                                  setState(() {
-                                    servicosUsuario.add(this.textoEmBusca);
-                                  });
-                                }
-                              },)
-                            ],
-                          ),
-                      ),
-                      Constants.SMALL_HEIGHT_BOX,
-                      // IconButton(icon: , onPressed: null)
-                 Flexible(
-                      child: ListView.builder(
-                        physics: PageScrollPhysics(),
-                        reverse: true,
-                        itemCount: servicosUsuario.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  title: Text(servicosUsuario[index]),
-                                  // contentPadding: EdgeInsets.symmetric(vertical: Constants.smallSpace),
-                                  tileColor: Colors.grey[100],
-                                  dense: true,
-                                ),
-                                Divider()
-                              ],
-                            ),
-                          );
+        child: Container(
+          margin: EdgeInsets.all(30),
+          child: Column(
+            children: <Widget>[
+              Text(
+                "Quais serviços você faz?",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: Constants.regularFontSize),
+              ),
+              Constants.MEDIUM_HEIGHT_BOX,
+              Form(
+                key: _formKey,
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          hintText: "Pesquisar serviço...",
+                          border: OutlineInputBorder(),
+                          fillColor: Constants.COR_MOSTARDA,
+                          isDense: true,
+                        ),
+                        onChanged: (texto) {
+                          setState(() {
+                            this.textoEmBusca = texto;
+                          });
                         },
                       ),
-                 ),
-                  OiaLargeButton(title: "Continuar", onPressed: () {},)
-                ],
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        if (_formKey.currentState.validate()) {
+                          setState(() {
+                            servicosUsuario.add(this.textoEmBusca);
+                          });
+                        }
+                      },
+                    )
+                  ],
+                ),
               ),
-            ),
+              Constants.SMALL_HEIGHT_BOX,
+              // IconButton(icon: , onPressed: null)
+              Flexible(
+                child: ListView.builder(
+                  physics: PageScrollPhysics(),
+                  reverse: true,
+                  itemCount: servicosUsuario.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      child: Column(
+                        children: [
+                          ListTile(
+                            title: Text(servicosUsuario[index]),
+                            // contentPadding: EdgeInsets.symmetric(vertical: Constants.smallSpace),
+                            tileColor: Colors.grey[100],
+                            dense: true,
+                          ),
+                          Divider()
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              OiaLargeButton(
+                title: "Continuar",
+                onPressed: _goToProfile,
+              )
+            ],
+          ),
+        ),
       ),
     );
-    
+  }
+
+  _goToProfile() {
+    Navigator.pushNamed(context, '/profile');
   }
 }
