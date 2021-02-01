@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import './custom_widgets/oiaWidgets.dart';
+import './infrastructure/loginAuth.dart';
 
 class WorkersPage extends StatefulWidget {
   @override
@@ -28,18 +29,18 @@ class WorkersList extends StatefulWidget {
 
 class _WorkersListState extends State<WorkersList> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: Firebase.initializeApp(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Scaffold(
-              drawer: OiaSidebar(),
-              bottomNavigationBar: OiaBottomBar(),
-              body: CustomScrollView(
-                slivers: [OiaFlexibleAppbar()],
-              ),
-            );
+            return WorkerListScreen();
           } else if (snapshot.connectionState == ConnectionState.none) {
             return Scaffold(
               body: SnackBar(
@@ -54,5 +55,31 @@ class _WorkersListState extends State<WorkersList> {
             ),
           );
         });
+  }
+}
+
+class WorkerListScreen extends StatefulWidget {
+  @override
+  _WorkerListScreenState createState() => _WorkerListScreenState();
+}
+
+class _WorkerListScreenState extends State<WorkerListScreen> {
+  LoginAuth auth = Authentication.loginAuth;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    auth.authChangeListener();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+              drawer: OiaSidebar(),
+              bottomNavigationBar: OiaBottomBar(),
+              body: CustomScrollView(
+                slivers: [OiaFlexibleAppbar()],
+              ),
+            );
   }
 }

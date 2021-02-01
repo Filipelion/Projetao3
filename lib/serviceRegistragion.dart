@@ -29,7 +29,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
       appBarTitle: auth.getUserProfileName(),
       body: SafeArea(
         child: Container(
-          margin: EdgeInsets.all(30),
+          margin: EdgeInsets.symmetric(vertical: Constants.mediumSpace),
           child: Column(
             children: <Widget>[
               Text(
@@ -107,6 +107,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   }
 
   _goToProfile() {
-    Navigator.pushNamed(context, '/profile');
+    Navigator.pushNamed(context, '/profile', arguments: servicosUsuario);
   }
 }

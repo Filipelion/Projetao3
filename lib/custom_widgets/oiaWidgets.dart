@@ -90,7 +90,7 @@ class _OiaScaffoldState extends State<OiaScaffold> {
         ),
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: widget.body,
+      body: Container(child: widget.body, padding: EdgeInsets.symmetric(horizontal: Constants.largeSpace),),
       drawer: OiaSidebar(),
       bottomNavigationBar: widget.showBottomBar ? OiaBottomBar() : null,
     );
@@ -163,6 +163,7 @@ class _OiaSidebarState extends State<OiaSidebar> {
                 "Faça login para ter acesso a todas as funcionalidades do aplicativo",
                 textAlign: TextAlign.center,
               ),
+              Constants.SMALL_HEIGHT_BOX,
               FlatButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/login');
@@ -185,19 +186,19 @@ class OiaSidebarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Image userProfilePicture = Image.network(
-          auth.getUserProfilePhoto(),
-          scale: 1.5,
-        ) ??
-        Image.asset('name');
+    ImageProvider userProfilePicture = NetworkImage(auth.getUserProfilePhoto(), scale: 1.5,);
     String userName = auth.getUserProfileName() ?? "Usuário Anônimo";
     String userEmail = auth.getUserEmail() ?? "-";
 
     return DrawerHeader(
+      decoration: BoxDecoration(color: Constants.COR_MOSTARDA),
       child: Column(children: [
-        Container(
-          child: userProfilePicture,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(50.0)),
+        OiaRoundedImage(
+          width: 70,
+          height: 70,
+          borderWidth: 3,
+          color: Colors.black87,
+          image: userProfilePicture,
         ),
         Constants.SMALL_HEIGHT_BOX,
         Text(
@@ -220,12 +221,33 @@ class OiaBottomBar extends StatefulWidget {
 }
 
 class _OiaBottomBarState extends State<OiaBottomBar> {
+  List _routes = ['/workers', '/service_registration', '/profile'];
+  int _currentIndex = 0;
+
+  void _navigateToRoute(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    String route = _routes[index];
+    // Indo para a próxima tela
+    if(index == 2) {
+      // TODO: Recuperar os serviços de um usuário e passar em uma lista para a tela de perfil.
+      Navigator.pushNamed(context, route, arguments: ["teste"]);   
+    } else {
+      Navigator.pushNamed(context, route);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-        unselectedIconTheme: IconThemeData(color: Colors.black),
-        selectedIconTheme: IconThemeData(color: Constants.COR_VINHO),
+        unselectedIconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Constants.COR_MOSTARDA,
+        currentIndex: _currentIndex,
+        selectedIconTheme: IconThemeData(color: Constants.COR_VINHO),
+        selectedLabelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        onTap: _navigateToRoute,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: "Anunciar"),
@@ -260,12 +282,15 @@ class OiaLargeButton extends StatelessWidget {
 class OiaRoundedImage extends StatelessWidget {
   double width, height, borderWidth;
   ImageProvider image;
+  Color color;
+
   OiaRoundedImage({
     Key key,
     this.width,
     this.height,
     this.borderWidth,
     this.image,
+    this.color = Constants.COR_MOSTARDA
   }) : super(key: key);
 
   @override
@@ -276,13 +301,28 @@ class OiaRoundedImage extends StatelessWidget {
       decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: Constants.COR_MOSTARDA,
+            color: this.color,
             width: this.borderWidth,
           ),
           image: DecorationImage(
             image: this.image,
             fit: BoxFit.fill,
           )),
+    );
+  }
+}
+
+class OiaClickableCard extends StatelessWidget {
+  final String title;
+  final Function onTap;
+
+  const OiaClickableCard({Key key, this.title, this.onTap}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: Card(child: Center(child: Text(this.title),), color: Colors.yellow[200],),
+      onTap: this.onTap,
     );
   }
 }
