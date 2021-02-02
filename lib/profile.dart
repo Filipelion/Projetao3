@@ -14,6 +14,8 @@ class _ProfileState extends State<Profile> {
   LoginAuth auth;
   bool isLoggedIn = true;
   TextEditingController _controllerNome;
+  List _generos = ['Feminino', 'Masculino', 'Não binário', 'Prefiro não dizer'];
+  String _dropdownValue;
 
   // List categorias;
 
@@ -57,30 +59,75 @@ class _ProfileState extends State<Profile> {
             ),
           ),
           Constants.LARGE_HEIGHT_BOX,
-          Form(child: Column(
-            children: [
-              TextFormField(controller: _controllerNome, decoration: InputDecoration(labelText: "Nome", border: OutlineInputBorder(), isDense: true,),),
-              Constants.SMALL_HEIGHT_BOX,
-              DropdownButtonFormField(items: null, onChanged: null, hint: Text("Gênero"), decoration: InputDecoration(border: OutlineInputBorder(), isDense: true),),
-              Constants.LARGE_HEIGHT_BOX,
-              RichText(text: TextSpan(children: [TextSpan(text: "Categorias", style: TextStyle(fontSize: Constants.mediumFontSize, fontWeight: FontWeight.bold, color: Colors.black)), TextSpan(text: "\nClique nos botões abaixo para poder editar as informações sobre os serviços que você realiza.", style: TextStyle(fontSize: Constants.smallFontSize))],style: TextStyle(color: Colors.grey)), textAlign: TextAlign.center,),
-              Constants.MEDIUM_HEIGHT_BOX,
-              Container(
-                decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
-                padding: EdgeInsets.all(Constants.smallSpace),
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  children: List.generate(_categorias.length, (index) {
-                    return OiaClickableCard(title: _categorias[index], onTap: () {},);
-                  })
+          Form(
+            child: Column(children: [
+              TextFormField(
+                controller: _controllerNome,
+                decoration: InputDecoration(
+                  labelText: "Nome",
+                  border: OutlineInputBorder(),
+                  isDense: true,
                 ),
               ),
               Constants.SMALL_HEIGHT_BOX,
-              OiaLargeButton(title: "Salvar", onPressed: () {},),
+              DropdownButtonFormField(
+                value: _dropdownValue,
+                items: _generos
+                    .map<DropdownMenuItem<String>>((genero) =>
+                        DropdownMenuItem(value: genero, child: Text(genero)))
+                    .toList(),
+                onChanged: (String newValue) {
+                  setState(() {
+                    _dropdownValue = newValue;
+                  });
+                },
+                hint: Text("Gênero"),
+                decoration: InputDecoration(
+                    labelText: "Gênero",
+                    border: OutlineInputBorder(),
+                    isDense: true),
+              ),
+              Constants.LARGE_HEIGHT_BOX,
+              RichText(
+                text: TextSpan(children: [
+                  TextSpan(
+                      text: "Categorias",
+                      style: TextStyle(
+                          fontSize: Constants.mediumFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black)),
+                  TextSpan(
+                      text:
+                          "\n\nClique nos botões abaixo para poder editar as informações sobre os serviços que você realiza.",
+                      style: TextStyle(fontSize: Constants.smallFontSize))
+                ], style: TextStyle(color: Colors.grey)),
+                textAlign: TextAlign.center,
+              ),
               Constants.MEDIUM_HEIGHT_BOX,
-          ]),),
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(10)),
+                padding: EdgeInsets.all(Constants.smallSpace),
+                child: GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    children: List.generate(_categorias.length, (index) {
+                      return OiaClickableCard(
+                        title: _categorias[index],
+                        onTap: () {},
+                      );
+                    })),
+              ),
+              Constants.SMALL_HEIGHT_BOX,
+              OiaLargeButton(
+                title: "Salvar",
+                onPressed: () {},
+              ),
+              Constants.MEDIUM_HEIGHT_BOX,
+            ]),
+          ),
         ],
       ),
     );

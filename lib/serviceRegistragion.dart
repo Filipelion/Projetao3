@@ -14,6 +14,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   List<String> servicosUsuario = ["Teste", "Dois"];
 
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _controller = TextEditingController();
   String textoEmBusca;
 
   @override
@@ -45,6 +46,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                   children: [
                     Flexible(
                       child: TextFormField(
+                        controller: _controller,
                         decoration: InputDecoration(
                           hintText: "Pesquisar serviço...",
                           border: OutlineInputBorder(),
@@ -63,6 +65,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                       onPressed: () {
                         if (_formKey.currentState.validate()) {
                           setState(() {
+                            _controller.clear();
                             servicosUsuario.add(this.textoEmBusca);
                           });
                         }
