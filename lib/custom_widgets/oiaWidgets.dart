@@ -72,11 +72,17 @@ class OiaScaffold extends StatefulWidget {
 
 class _OiaScaffoldState extends State<OiaScaffold> {
   LoginAuth auth = Authentication.loginAuth;
+  bool _isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
     auth.authChangeListener();
+    if(auth.userIsLoggedIn()) {
+      setState(() {
+        _isLoggedIn = true;
+      });
+    }
   }
 
   @override
@@ -92,7 +98,7 @@ class _OiaScaffoldState extends State<OiaScaffold> {
       ),
       body: Container(child: widget.body, padding: EdgeInsets.symmetric(horizontal: Constants.largeSpace),),
       drawer: OiaSidebar(),
-      bottomNavigationBar: widget.showBottomBar ? OiaBottomBar() : null,
+      bottomNavigationBar: widget.showBottomBar && _isLoggedIn ? OiaBottomBar() : null,
     );
   }
 }

@@ -101,6 +101,10 @@ class LoginAuth {
   String getUserEmail() {
     return this.getUser().email;
   }
+
+  String getUid() {
+    return this.getUser().uid;
+  }
 }
 
 class Authentication {

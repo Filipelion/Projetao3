@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'custom_widgets/oiaWidgets.dart';
 import 'infrastructure/constants.dart';
 import 'infrastructure/loginAuth.dart';
+import './infrastructure/database_integration.dart';
 
 class Profile extends StatefulWidget {
   List<String> tags;
@@ -14,14 +17,18 @@ class _ProfileState extends State<Profile> {
   LoginAuth auth;
   bool isLoggedIn = true;
   TextEditingController _controllerNome;
+  final _formKey = GlobalKey<FormState>();
+
+  // Dropdown de gêneros
   List _generos = ['Feminino', 'Masculino', 'Não binário', 'Prefiro não dizer'];
   String _dropdownValue;
 
-  // List categorias;
+  // Dados do usuario
+  UsuarioController _usuarioController = DatabaseIntegration.usuarioController;
+  FutureOr<Usuario> _usuario;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     auth = Authentication.loginAuth;
     auth.authChangeListener();
@@ -30,6 +37,20 @@ class _ProfileState extends State<Profile> {
       setState(() {
         isLoggedIn = true;
       });
+    }
+  }
+
+  _onSaveFields() {
+    if(_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+      _usuario = Usuario(
+        uid: auth.getUid(),
+        nome: _controllerNome.value.text.toString(),
+        genero: _dropdownValue,
+        email: auth.getUserEmail(),
+
+      );
+      _usuarioController.saveUsuario(_usuario);
     }
   }
 
@@ -60,6 +81,7 @@ class _ProfileState extends State<Profile> {
           ),
           Constants.LARGE_HEIGHT_BOX,
           Form(
+            key: _formKey,
             child: Column(children: [
               TextFormField(
                 controller: _controllerNome,
@@ -68,6 +90,9 @@ class _ProfileState extends State<Profile> {
                   border: OutlineInputBorder(),
                   isDense: true,
                 ),
+                validator: (value) {
+                  if (value == null) return "Insira um valor não nulo";
+                },
               ),
               Constants.SMALL_HEIGHT_BOX,
               DropdownButtonFormField(
@@ -80,6 +105,10 @@ class _ProfileState extends State<Profile> {
                   setState(() {
                     _dropdownValue = newValue;
                   });
+                },
+                validator: (value) {
+                  if (value == null) return "Selecione uma opção";
+
                 },
                 hint: Text("Gênero"),
                 decoration: InputDecoration(
@@ -123,7 +152,7 @@ class _ProfileState extends State<Profile> {
               Constants.SMALL_HEIGHT_BOX,
               OiaLargeButton(
                 title: "Salvar",
-                onPressed: () {},
+                onPressed: _onSaveFields,
               ),
               Constants.MEDIUM_HEIGHT_BOX,
             ]),

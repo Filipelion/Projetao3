@@ -3,6 +3,7 @@ import './custom_widgets/oiaWidgets.dart';
 import './infrastructure/loginAuth.dart';
 import './infrastructure/constants.dart';
 import 'infrastructure/constants.dart';
+import './infrastructure/database_integration.dart';
 
 class ServiceRegistration extends StatefulWidget {
   @override
@@ -109,7 +110,12 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
     );
   }
 
-  _goToProfile() {
-    Navigator.pushNamed(context, '/profile', arguments: servicosUsuario);
+  _goToProfile() async {
+    String id = auth.getUid();
+    if(await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id)) {
+      Navigator.popAndPushNamed(context, '/workers');
+    } else {
+      Navigator.pushNamed(context, '/profile', arguments: servicosUsuario);
+    }
   }
 }
