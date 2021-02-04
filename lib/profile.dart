@@ -43,11 +43,16 @@ class _ProfileState extends State<Profile> {
   _onSaveFields() {
     if(_formKey.currentState.validate()) {
       _formKey.currentState.save();
+      String uid = auth.getUid();
+      String nome = _controllerNome.value.text.toString();
+      String genero = _dropdownValue;
+      String email = auth.getUserEmail();
+      
       _usuario = Usuario(
-        uid: auth.getUid(),
-        nome: _controllerNome.value.text.toString(),
-        genero: _dropdownValue,
-        email: auth.getUserEmail(),
+        uid: uid,
+        nome: nome,
+        genero: genero,
+        email: email,
 
       );
       _usuarioController.saveUsuario(_usuario);

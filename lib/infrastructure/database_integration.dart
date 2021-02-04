@@ -46,6 +46,7 @@ class UsuarioController {
       // Tentando recuperar os dados do usuário do banco de dados
       DocumentSnapshot snapshot = await this.getUsuarioByID(id);
       Map usuarioData = snapshot.data();
+      // TODO: Analisar o que tem de errado aqui
       Usuario usuario = Usuario.fromJson(usuarioData);
       return usuario;
 

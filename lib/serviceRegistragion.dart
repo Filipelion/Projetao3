@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import './custom_widgets/oiaWidgets.dart';
 import './infrastructure/loginAuth.dart';
@@ -12,7 +13,8 @@ class ServiceRegistration extends StatefulWidget {
 
 class _ServiceRegistrationState extends State<ServiceRegistration> {
   LoginAuth auth = Authentication.loginAuth;
-  List<String> servicosUsuario = ["Teste", "Dois"];
+  List<String> servicosUsuario = [];
+  bool _hasServiceBeenAdded = false;
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _controller = TextEditingController();
@@ -59,6 +61,9 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                             this.textoEmBusca = texto;
                           });
                         },
+                        validator: (texto) {
+                          if(texto == null) return "O texto não pode ser nulo";
+                        },
                       ),
                     ),
                     IconButton(
@@ -78,7 +83,24 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
               Constants.SMALL_HEIGHT_BOX,
               // IconButton(icon: , onPressed: null)
               Flexible(
-                child: ListView.builder(
+                child: _buildList(),
+              ),
+              OiaLargeButton(
+                title: "Continuar",
+                onPressed: _goToProfile,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  _buildList() {
+    return FutureBuilder(
+      future: _getCartaServicos(), 
+      builder: (BuildContext context, snapshot) {
+        if(snapshot.connectionState == ConnectionState.done) {
+          return ListView.builder(
                   physics: PageScrollPhysics(),
                   reverse: true,
                   itemCount: servicosUsuario.length,
@@ -97,17 +119,21 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                       ),
                     );
                   },
-                ),
-              ),
-              OiaLargeButton(
-                title: "Continuar",
-                onPressed: _goToProfile,
-              )
-            ],
-          ),
-        ),
-      ),
-    );
+                );
+        } else if(snapshot.connectionState == ConnectionState.none) {
+          return Container(margin: EdgeInsets.symmetric(vertical: Constants.largeSpace), child: Center(child: Text("Não foi possível conectar com o banco de dados"),),);
+        }
+        return Container(margin: EdgeInsets.symmetric(vertical: Constants.largeSpace), child: CircularProgressIndicator());
+    });
+  }
+
+  _getCartaServicos() async {
+    UsuarioController usuarioController = UsuarioController();
+    Usuario usuario = await usuarioController.getUsuarioData(auth.getUid());
+    print(usuario.toJson().toString());
+    // setState(() {
+    //   servicosUsuario = servicos.keys.toList();
+    // });
   }
 
   _goToProfile() async {
@@ -118,4 +144,5 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
       Navigator.pushNamed(context, '/profile', arguments: servicosUsuario);
     }
   }
+
 }

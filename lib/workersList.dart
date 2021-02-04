@@ -65,7 +65,7 @@ class WorkerListScreen extends StatefulWidget {
 
 class _WorkerListScreenState extends State<WorkerListScreen> {
   LoginAuth auth = Authentication.loginAuth;
-  bool _isLoggedIn = false;
+  bool _isLoggedIn;
 
   @override
   void initState() {
@@ -73,7 +73,13 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
     super.initState();
     auth.authChangeListener();
     if (auth.userIsLoggedIn()) {
-      _isLoggedIn = true;
+      setState(() {
+        _isLoggedIn = true;
+      });
+    } else {
+      setState(() {
+        _isLoggedIn = false;
+      });
     }
   }
   @override
