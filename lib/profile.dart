@@ -5,6 +5,7 @@ import 'custom_widgets/oiaWidgets.dart';
 import 'infrastructure/constants.dart';
 import 'infrastructure/loginAuth.dart';
 import './infrastructure/database_integration.dart';
+import './infrastructure/usuario.dart';
 
 class Profile extends StatefulWidget {
   List<String> tags;

@@ -1,8 +1,3 @@
-import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import './loginAuth.dart';
-
 class Servico {
   String tipo, descricao;
   num valorMedio;
@@ -48,29 +43,5 @@ class CartaServicos {
 
   List tipos() {
     return cartaServicos.keys.toList();
-  }
-}
-
-class CartaServicosController {
-  CollectionReference _servicos;
-
-  CartaServicosController() {
-    this._servicos = FirebaseFirestore.instance.collection("Servicos");
-  }
-
-  FutureOr<CartaServicos> get(String id) async {
-    DocumentSnapshot snapshot = await this._servicos.doc(id).get();
-    Map data = snapshot.data();
-    return CartaServicos(id: id, cartaServicos: data);
-  }
-
-  FutureOr<DocumentReference> save(CartaServicos cartaServicos) async {
-    Map data = cartaServicos.get();
-    String id = cartaServicos.id;
-
-    DocumentReference reference = this._servicos.doc(id);
-    reference.set(data).then((value) {
-      return reference;
-    });
   }
 }

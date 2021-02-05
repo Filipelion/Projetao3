@@ -3,38 +3,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './loginAuth.dart';
-
-class Usuario {
-  String uid, nome, email, genero;
-  Map servicos, favoritos;
-
-  Usuario(
-      {this.uid,
-      this.nome,
-      this.email,
-      this.genero,
-      this.servicos,
-      this.favoritos});
-
-  Usuario.fromJson(Map<String, dynamic> json) {
-    if (json == null) return;
-    this.uid = json["uid"];
-    this.nome = json["nome"];
-    this.genero = json["genero"];
-    this.email = json["email"];
-    this.servicos = json["servicos"];
-    this.favoritos = json["favoritos"];
-  }
-
-  Map<String, dynamic> toJson() => {
-        "uid": this.uid,
-        "nome": this.nome,
-        "email": this.email,
-        "genero": this.genero,
-        "servicos": this.servicos,
-        "favoritos": this.favoritos,
-      };
-}
+import './usuario.dart';
+import './cartaServicos.dart';
 
 class UsuarioController {
   CollectionReference _usuarios;
@@ -55,11 +25,11 @@ class UsuarioController {
       // TODO: Analisar o que tem de errado aqui
       Usuario usuario = Usuario.fromJson(usuarioData);
       return usuario;
-    } catch (e) {
+
+    } catch(e) {
       // Caso não dê para recuperar do CloudFirestore, os datas serão extraídos da autenticação
       User user = Authentication.loginAuth.getUser();
-      Usuario usuario =
-          Usuario(uid: user.uid, nome: user.displayName, email: user.email);
+      Usuario usuario = Usuario(uid: user.uid, nome: user.displayName, email: user.email);
       return usuario;
     }
   }
@@ -77,10 +47,51 @@ class UsuarioController {
     String uid = usuario.uid;
     Map usuarioData = usuario.toJson();
     _usuarios.doc(uid).set(usuarioData);
-  }
+  } 
 
   removeUsuario(String id) async {
     return await _usuarios.doc(id).delete();
+  }
+
+  Future<CartaServicos> getUsuarioCartaServicos(String id) async{
+    Usuario usuario = await this.getUsuarioData(id);
+    DocumentSnapshot snapshot = await usuario.servicos.get();
+    return CartaServicos(id: id, cartaServicos: snapshot.data());
+  }
+
+}
+
+
+class CartaServicosController {
+  CollectionReference _servicos;
+
+  CartaServicosController() {
+    this._servicos = FirebaseFirestore.instance.collection("Servicos");
+  }
+
+  FutureOr<CartaServicos> get(String id) async {
+    DocumentSnapshot snapshot = await this._servicos.doc(id).get();
+    Map data = snapshot.data();
+    return CartaServicos(id: id, cartaServicos: data);
+  }
+
+  FutureOr<DocumentReference> save(CartaServicos cartaServicos) async {
+    Map data = cartaServicos.get();
+    String id = cartaServicos.id;
+
+    DocumentReference reference = this._servicos.doc(id);
+    reference.set(data).then((value) {
+      return reference;
+    });
+  }
+
+  FutureOr<bool> isInDatabase(String id) async {
+    DocumentSnapshot snapshot = await this._servicos.doc(id).get();
+    try {
+      return snapshot.exists;
+    } catch(e) {
+      return false;
+    }
   }
 }
 
