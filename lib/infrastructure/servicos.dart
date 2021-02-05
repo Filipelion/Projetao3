@@ -8,10 +8,10 @@ class Servico {
   num valorMedio;
   Map imagens;
 
-  Servico({this.tipo, this.descricao,  this.valorMedio, this.imagens});
+  Servico({this.tipo, this.descricao, this.valorMedio, this.imagens});
 
   Servico.fromJson(Map<String, dynamic> json) {
-    if(json == null) return;
+    if (json == null) return;
     this.tipo = json["tipo"] ?? "";
     this.descricao = json["descricao"] ?? "";
     this.valorMedio = json["valorMedio"] ?? "";
@@ -19,16 +19,16 @@ class Servico {
   }
 
   Map<String, dynamic> toJson() => {
-    "tipo" : this.tipo,
-    "descricao" : this.descricao,
-    "valorMedio" : this.valorMedio,
-    "imagens" : this.imagens,
-  };
+        "tipo": this.tipo,
+        "descricao": this.descricao,
+        "valorMedio": this.valorMedio,
+        "imagens": this.imagens,
+      };
 }
 
 class CartaServicos {
   String id;
-  Map<String, dynamic>  cartaServicos; 
+  Map<String, dynamic> cartaServicos;
 
   CartaServicos({this.id, this.cartaServicos});
 
@@ -46,11 +46,10 @@ class CartaServicos {
     return this.cartaServicos;
   }
 
-  List titles() {
+  List tipos() {
     return cartaServicos.keys.toList();
   }
 }
-
 
 class CartaServicosController {
   CollectionReference _servicos;
@@ -70,9 +69,8 @@ class CartaServicosController {
     String id = cartaServicos.id;
 
     DocumentReference reference = this._servicos.doc(id);
-    reference.set(data).then((value)  {
+    reference.set(data).then((value) {
       return reference;
     });
   }
-
 }

@@ -8,10 +8,16 @@ class Usuario {
   String uid, nome, email, genero;
   Map servicos, favoritos;
 
-  Usuario({this.uid, this.nome, this.email, this.genero, this.servicos, this.favoritos});
+  Usuario(
+      {this.uid,
+      this.nome,
+      this.email,
+      this.genero,
+      this.servicos,
+      this.favoritos});
 
   Usuario.fromJson(Map<String, dynamic> json) {
-    if(json == null) return;
+    if (json == null) return;
     this.uid = json["uid"];
     this.nome = json["nome"];
     this.genero = json["genero"];
@@ -21,13 +27,13 @@ class Usuario {
   }
 
   Map<String, dynamic> toJson() => {
-    "uid" : this.uid,
-    "nome" : this.nome,
-    "email" : this.email,
-    "genero" : this.genero,
-    "servicos" : this.servicos,
-    "favoritos" : this.favoritos,
-  };
+        "uid": this.uid,
+        "nome": this.nome,
+        "email": this.email,
+        "genero": this.genero,
+        "servicos": this.servicos,
+        "favoritos": this.favoritos,
+      };
 }
 
 class UsuarioController {
@@ -49,11 +55,11 @@ class UsuarioController {
       // TODO: Analisar o que tem de errado aqui
       Usuario usuario = Usuario.fromJson(usuarioData);
       return usuario;
-
-    } catch(e) {
+    } catch (e) {
       // Caso não dê para recuperar do CloudFirestore, os datas serão extraídos da autenticação
       User user = Authentication.loginAuth.getUser();
-      Usuario usuario = Usuario(uid: user.uid, nome: user.displayName, email: user.email);
+      Usuario usuario =
+          Usuario(uid: user.uid, nome: user.displayName, email: user.email);
       return usuario;
     }
   }
@@ -71,12 +77,11 @@ class UsuarioController {
     String uid = usuario.uid;
     Map usuarioData = usuario.toJson();
     _usuarios.doc(uid).set(usuarioData);
-  } 
+  }
 
   removeUsuario(String id) async {
     return await _usuarios.doc(id).delete();
   }
-
 }
 
 class DatabaseIntegration {

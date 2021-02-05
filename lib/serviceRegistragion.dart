@@ -1,3 +1,4 @@
+import 'package:Projetao3/infrastructure/servicos.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import './custom_widgets/oiaWidgets.dart';
@@ -14,7 +15,7 @@ class ServiceRegistration extends StatefulWidget {
 class _ServiceRegistrationState extends State<ServiceRegistration> {
   LoginAuth auth = Authentication.loginAuth;
   List<String> servicosUsuario = [];
-  bool _hasServiceBeenAdded = false;
+  Usuario usuario;
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _controller = TextEditingController();
@@ -62,7 +63,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                           });
                         },
                         validator: (texto) {
-                          if(texto == null) return "O texto não pode ser nulo";
+                          if (texto == null) return "O texto não pode ser nulo";
                         },
                       ),
                     ),
@@ -95,42 +96,71 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
       ),
     );
   }
+
   _buildList() {
     return FutureBuilder(
-      future: _getCartaServicos(), 
-      builder: (BuildContext context, snapshot) {
-        if(snapshot.connectionState == ConnectionState.done) {
-          return ListView.builder(
-                  physics: PageScrollPhysics(),
-                  reverse: true,
-                  itemCount: servicosUsuario.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      child: Column(
-                        children: [
-                          ListTile(
-                            title: Text(servicosUsuario[index]),
-                            // contentPadding: EdgeInsets.symmetric(vertical: Constants.smallSpace),
-                            tileColor: Colors.grey[100],
-                            dense: true,
-                          ),
-                          Divider()
-                        ],
+        future: _getCartaServicos(),
+        builder: (BuildContext context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+              physics: PageScrollPhysics(),
+              reverse: true,
+              itemCount: servicosUsuario.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(servicosUsuario[index]),
+                        // contentPadding: EdgeInsets.symmetric(vertical: Constants.smallSpace),
+                        tileColor: Colors.grey[100],
+                        dense: true,
                       ),
-                    );
-                  },
+                      Divider()
+                    ],
+                  ),
                 );
-        } else if(snapshot.connectionState == ConnectionState.none) {
-          return Container(margin: EdgeInsets.symmetric(vertical: Constants.largeSpace), child: Center(child: Text("Não foi possível conectar com o banco de dados"),),);
-        }
-        return Container(margin: EdgeInsets.symmetric(vertical: Constants.largeSpace), child: CircularProgressIndicator());
-    });
+              },
+            );
+          } else if (snapshot.connectionState == ConnectionState.none) {
+            return Container(
+              margin: EdgeInsets.symmetric(vertical: Constants.largeSpace),
+              child: Center(
+                child: Text("Não foi possível conectar com o banco de dados"),
+              ),
+            );
+          }
+          return Container(
+              margin: EdgeInsets.symmetric(vertical: Constants.largeSpace),
+              child: CircularProgressIndicator());
+        });
   }
 
   _getCartaServicos() async {
     UsuarioController usuarioController = UsuarioController();
-    Usuario usuario = await usuarioController.getUsuarioData(auth.getUid());
+    String uid = auth.getUid();
+
+    if (usuarioController.usuarioIsInDatabase(uid)) {
+      usuario = await usuarioController.getUsuarioData(uid);
+    } else {
+      // Convertendo os servicos para um objeto Map
+      Map servicosData = {};
+      servicosUsuario.forEach((tipo) {
+        servicosData[tipo] = {};
+      });
+
+      // TODO: revisar essa parte
+
+      usuario = Usuario.fromJson({
+        "uid": uid,
+        "nome": auth.getUserProfileName(),
+        // TODO: seviços precisa ser uma referencia para o firebase
+        "email": auth.getUserEmail(),
+        "servicos": servicos,
+      });
+    }
     print(usuario.toJson().toString());
+    print("a");
     // setState(() {
     //   servicosUsuario = servicos.keys.toList();
     // });
@@ -138,11 +168,10 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
   _goToProfile() async {
     String id = auth.getUid();
-    if(await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id)) {
+    if (await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id)) {
       Navigator.popAndPushNamed(context, '/workers');
     } else {
       Navigator.pushNamed(context, '/profile', arguments: servicosUsuario);
     }
   }
-
 }
