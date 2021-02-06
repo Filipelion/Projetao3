@@ -55,8 +55,11 @@ class UsuarioController {
 
   Future<CartaServicos> getUsuarioCartaServicos(String id) async{
     Usuario usuario = await this.getUsuarioData(id);
-    DocumentSnapshot snapshot = await usuario.servicos.get();
-    return CartaServicos(id: id, cartaServicos: snapshot.data());
+    DocumentReference snapshot = usuario.servicos;
+    print("Testando a função getUsuarioCartaServicos..");
+    print(snapshot.toString());
+    DocumentSnapshot data = await snapshot.get();
+    return CartaServicos(id: id, cartaServicos: data.data());
   }
 
 }
@@ -66,13 +69,19 @@ class CartaServicosController {
   CollectionReference _servicos;
 
   CartaServicosController() {
-    this._servicos = FirebaseFirestore.instance.collection("Servicos");
+    this._servicos = FirebaseFirestore.instance.collection("CartaServicos");
   }
 
-  FutureOr<CartaServicos> get(String id) async {
-    DocumentSnapshot snapshot = await this._servicos.doc(id).get();
-    Map data = snapshot.data();
-    return CartaServicos(id: id, cartaServicos: data);
+  Future<CartaServicos> get(String id) async {
+
+    CartaServicos cartaServicos = await this._servicos.doc(id).get().then((value) {
+      Map data = value.data(); 
+      
+      print("Is value on dataset: ${value.exists.toString()}");
+      return CartaServicos(id: id, cartaServicos: data);
+    });
+    print("Testando a função get de CartaServicosController");
+    return cartaServicos;
   }
 
   FutureOr<DocumentReference> save(CartaServicos cartaServicos) async {

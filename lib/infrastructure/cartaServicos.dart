@@ -42,6 +42,6 @@ class CartaServicos {
   }
 
   List tipos() {
-    return cartaServicos.keys.toList();
+    return this.cartaServicos == null ? [] : cartaServicos.keys.toList();
   }
 }

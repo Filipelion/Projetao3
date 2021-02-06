@@ -29,15 +29,30 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   UsuarioController _usuarioController = UsuarioController();
   CartaServicosController _cartaServicosController = CartaServicosController();
 
+  bool _userIsLoggedIn = false;
+  bool _wasAddedNewServico = false;
 
   @override
   void initState() {
     super.initState();
     auth.authChangeListener();
+    if(auth.userIsLoggedIn() && !_userIsLoggedIn) {
+      setState(() {
+        _userIsLoggedIn = true;
+      });
+      String uid = auth.getUid();
+      Future<CartaServicos> cartaServicos = _usuarioController.getUsuarioCartaServicos(uid).then((value) {
+        setState(() {
+          servicosUsuario =  value.tipos();
+        });
+        return value;
+      });  
   }
+    }
 
   @override
   Widget build(BuildContext context) {
+    
     return OiaScaffold(
             appBarTitle: auth.getUserProfileName(),
             body: SafeArea(
@@ -83,6 +98,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                                 setState(() {
                                   _controller.clear();
                                   servicosUsuario.add(this.textoEmBusca);
+                                  _wasAddedNewServico = true;
                                 });
                               }
                             },
@@ -130,7 +146,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
   _goToProfile() async {
     String id = auth.getUid();
-    if (await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id)) {
+    if (await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id) && !_wasAddedNewServico) {
       Navigator.popAndPushNamed(context, '/workers');
     } else {
       Navigator.pushNamed(context, '/profile', arguments: servicosUsuario);
