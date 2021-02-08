@@ -78,7 +78,7 @@ class _OiaScaffoldState extends State<OiaScaffold> {
   void initState() {
     super.initState();
     auth.authChangeListener();
-    if(auth.userIsLoggedIn()) {
+    if (auth.userIsLoggedIn()) {
       setState(() {
         _isLoggedIn = true;
       });
@@ -96,9 +96,13 @@ class _OiaScaffoldState extends State<OiaScaffold> {
         ),
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: Container(child: widget.body, padding: EdgeInsets.symmetric(horizontal: Constants.largeSpace),),
+      body: Container(
+        child: widget.body,
+        padding: EdgeInsets.symmetric(horizontal: Constants.largeSpace),
+      ),
       drawer: OiaSidebar(),
-      bottomNavigationBar: widget.showBottomBar && _isLoggedIn ? OiaBottomBar() : null,
+      bottomNavigationBar:
+          widget.showBottomBar && _isLoggedIn ? OiaBottomBar() : null,
     );
   }
 }
@@ -192,7 +196,10 @@ class OiaSidebarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider userProfilePicture = NetworkImage(auth.getUserProfilePhoto(), scale: 1.5,);
+    ImageProvider userProfilePicture = NetworkImage(
+      auth.getUserProfilePhoto(),
+      scale: 1.5,
+    );
     String userName = auth.getUserProfileName() ?? "Usuário Anônimo";
     String userEmail = auth.getUserEmail() ?? "-";
 
@@ -237,9 +244,9 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
 
     String route = _routes[index];
     // Indo para a próxima tela
-    if(index == 2) {
+    if (index == 2) {
       // TODO: Recuperar os serviços de um usuário e passar em uma lista para a tela de perfil.
-      Navigator.pushNamed(context, route, arguments: ["teste"]);   
+      Navigator.pushNamed(context, route, arguments: ["teste"]);
     } else {
       Navigator.pushNamed(context, route);
     }
@@ -252,7 +259,8 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
         backgroundColor: Constants.COR_MOSTARDA,
         currentIndex: _currentIndex,
         selectedIconTheme: IconThemeData(color: Constants.COR_VINHO),
-        selectedLabelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        selectedLabelStyle:
+            TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         onTap: _navigateToRoute,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
@@ -290,14 +298,14 @@ class OiaRoundedImage extends StatelessWidget {
   ImageProvider image;
   Color color;
 
-  OiaRoundedImage({
-    Key key,
-    this.width,
-    this.height,
-    this.borderWidth,
-    this.image,
-    this.color = Constants.COR_MOSTARDA
-  }) : super(key: key);
+  OiaRoundedImage(
+      {Key key,
+      this.width,
+      this.height,
+      this.borderWidth,
+      this.image,
+      this.color = Constants.COR_MOSTARDA})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -327,7 +335,15 @@ class OiaClickableCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: Card(child: Center(child: Text(this.title),), color: Colors.yellow[200],),
+      child: Card(
+        child: Center(
+          child: Text(
+            this.title,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        color: Colors.yellow[200],
+      ),
       onTap: this.onTap,
     );
   }

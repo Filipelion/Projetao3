@@ -1,3 +1,4 @@
+import 'package:Projetao3/crudServico/crudServico.dart';
 import 'package:Projetao3/profile.dart';
 import 'package:Projetao3/workersList.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
       '/workers': (context) => WorkersPage(),
       '/service_registration': (context) => ServiceRegistration(),
       '/profile': (context) => Profile(),
+      '/servico': (context) => CrudServico(),
     };
   }
 }

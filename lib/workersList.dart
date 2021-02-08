@@ -65,7 +65,7 @@ class WorkerListScreen extends StatefulWidget {
 
 class _WorkerListScreenState extends State<WorkerListScreen> {
   LoginAuth auth = Authentication.loginAuth;
-  bool _isLoggedIn;
+  bool isLoggedIn = false;
 
   @override
   void initState() {
@@ -74,22 +74,20 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
     auth.authChangeListener();
     if (auth.userIsLoggedIn()) {
       setState(() {
-        _isLoggedIn = true;
-      });
-    } else {
-      setState(() {
-        _isLoggedIn = false;
+        isLoggedIn = true;
+        print(isLoggedIn);
       });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-              drawer: OiaSidebar(),
-              bottomNavigationBar: _isLoggedIn ? OiaBottomBar() : null,
-              body: CustomScrollView(
-                slivers: [OiaFlexibleAppbar()],
-              ),
-            );
+      drawer: OiaSidebar(),
+      bottomNavigationBar: OiaBottomBar(),
+      body: CustomScrollView(
+        slivers: [OiaFlexibleAppbar()],
+      ),
+    );
   }
 }

@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
+
 class Servico {
   String tipo, descricao;
   num valorMedio;
-  Map imagens;
+  List imagens;
 
   Servico({this.tipo, this.descricao, this.valorMedio, this.imagens});
 
@@ -10,7 +12,7 @@ class Servico {
     this.tipo = json["tipo"] ?? "";
     this.descricao = json["descricao"] ?? "";
     this.valorMedio = json["valorMedio"] ?? "";
-    this.imagens = json["imagens"] ?? {};
+    this.imagens = json["imagens"] ?? [];
   }
 
   Map<String, dynamic> toJson() => {
@@ -29,6 +31,12 @@ class CartaServicos {
 
   Map<String, dynamic> get() {
     return this.cartaServicos;
+  }
+
+  getServico(String tipo) {
+    Map json = this.cartaServicos[tipo];
+    Servico servico = Servico.fromJson(json);
+    return servico;
   }
 
   Map save(String tipo, Map<String, dynamic> data) {

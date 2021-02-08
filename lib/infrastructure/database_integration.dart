@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './loginAuth.dart';
 import './usuario.dart';
-import './cartaServicos.dart';
+import 'cartaServico.dart';
 
 class UsuarioController {
   CollectionReference _usuarios;
@@ -25,11 +25,11 @@ class UsuarioController {
       // TODO: Analisar o que tem de errado aqui
       Usuario usuario = Usuario.fromJson(usuarioData);
       return usuario;
-
-    } catch(e) {
+    } catch (e) {
       // Caso não dê para recuperar do CloudFirestore, os datas serão extraídos da autenticação
       User user = Authentication.loginAuth.getUser();
-      Usuario usuario = Usuario(uid: user.uid, nome: user.displayName, email: user.email);
+      Usuario usuario =
+          Usuario(uid: user.uid, nome: user.displayName, email: user.email);
       return usuario;
     }
   }
@@ -47,23 +47,25 @@ class UsuarioController {
     String uid = usuario.uid;
     Map usuarioData = usuario.toJson();
     _usuarios.doc(uid).set(usuarioData);
-  } 
+  }
 
   removeUsuario(String id) async {
     return await _usuarios.doc(id).delete();
   }
 
-  Future<CartaServicos> getUsuarioCartaServicos(String id) async{
+  Future<CartaServicos> getUsuarioCartaServicos(String id) async {
     Usuario usuario = await this.getUsuarioData(id);
     DocumentReference snapshot = usuario.servicos;
     print("Testando a função getUsuarioCartaServicos..");
-    print(snapshot.toString());
-    DocumentSnapshot data = await snapshot.get();
-    return CartaServicos(id: id, cartaServicos: data.data());
+
+    try {
+      DocumentSnapshot data = await snapshot.get();
+      return CartaServicos(id: id, cartaServicos: data.data());
+    } catch (e) {
+      return CartaServicos(id: id, cartaServicos: {});
+    }
   }
-
 }
-
 
 class CartaServicosController {
   CollectionReference _servicos;
@@ -73,11 +75,9 @@ class CartaServicosController {
   }
 
   Future<CartaServicos> get(String id) async {
-
-    CartaServicos cartaServicos = await this._servicos.doc(id).get().then((value) {
-      Map data = value.data(); 
-      
-      print("Is value on dataset: ${value.exists.toString()}");
+    CartaServicos cartaServicos =
+        await this._servicos.doc(id).get().then((value) {
+      Map data = value.data();
       return CartaServicos(id: id, cartaServicos: data);
     });
     print("Testando a função get de CartaServicosController");
@@ -89,16 +89,16 @@ class CartaServicosController {
     String id = cartaServicos.id;
 
     DocumentReference reference = this._servicos.doc(id);
-    reference.set(data).then((value) {
-      return reference;
-    });
+    await reference.set(data);
+
+    return reference;
   }
 
   FutureOr<bool> isInDatabase(String id) async {
     DocumentSnapshot snapshot = await this._servicos.doc(id).get();
     try {
       return snapshot.exists;
-    } catch(e) {
+    } catch (e) {
       return false;
     }
   }
@@ -106,4 +106,6 @@ class CartaServicosController {
 
 class DatabaseIntegration {
   static final UsuarioController usuarioController = UsuarioController();
+  static final CartaServicosController cartaServicosController =
+      CartaServicosController();
 }

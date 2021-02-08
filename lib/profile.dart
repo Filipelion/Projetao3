@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:Projetao3/crudServico/crudServicosArgs.dart';
+import 'package:Projetao3/infrastructure/cartaServico.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'custom_widgets/oiaWidgets.dart';
 import 'infrastructure/constants.dart';
@@ -25,8 +28,11 @@ class _ProfileState extends State<Profile> {
   String _dropdownValue;
 
   // Dados do usuario
-  UsuarioController _usuarioController = DatabaseIntegration.usuarioController;
+  final _usuarioController = DatabaseIntegration.usuarioController;
+  final _cartaServicosController = DatabaseIntegration.cartaServicosController;
+
   FutureOr<Usuario> _usuario;
+  CartaServicos _cartaServicos;
 
   @override
   void initState() {
@@ -42,21 +48,31 @@ class _ProfileState extends State<Profile> {
   }
 
   _onSaveFields() {
-    if(_formKey.currentState.validate()) {
+    if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       String uid = auth.getUid();
       String nome = _controllerNome.value.text.toString();
       String genero = _dropdownValue;
       String email = auth.getUserEmail();
-      
+      DocumentReference servicos =
+          _cartaServicosController.save(_cartaServicos);
+
       _usuario = Usuario(
         uid: uid,
         nome: nome,
         genero: genero,
         email: email,
-
+        servicos: servicos,
       );
       _usuarioController.saveUsuario(_usuario);
+    }
+  }
+
+  _getCartaServicos() async {
+    String uid = auth.getUid();
+    if (_usuarioController.usuarioIsInDatabase(uid)) {
+      var cartaServicos = await _usuarioController.getUsuarioCartaServicos(uid);
+      return cartaServicos;
     }
   }
 
@@ -72,7 +88,10 @@ class _ProfileState extends State<Profile> {
   }
 
   _buildBody(context) {
-    List _categorias = ModalRoute.of(context).settings.arguments;
+    // TODO: fazer com que as rotas recebam a carta de servicos
+    _cartaServicos = ModalRoute.of(context).settings.arguments;
+    List _categorias = _cartaServicos.tipos();
+    // List _categorias = ModalRoute.of(context).settings.arguments;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -114,7 +133,6 @@ class _ProfileState extends State<Profile> {
                 },
                 validator: (value) {
                   if (value == null) return "Selecione uma opção";
-
                 },
                 hint: Text("Gênero"),
                 decoration: InputDecoration(
@@ -149,9 +167,16 @@ class _ProfileState extends State<Profile> {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     children: List.generate(_categorias.length, (index) {
+                      String tipo = _categorias[index];
+
                       return OiaClickableCard(
-                        title: _categorias[index],
-                        onTap: () {},
+                        title: tipo,
+                        onTap: () {
+                          CrudServicoArgs args = CrudServicoArgs(
+                              tipo: tipo, cartaServicos: _cartaServicos);
+                          Navigator.pushNamed(context, '/servico',
+                              arguments: args);
+                        },
                       );
                     })),
               ),
