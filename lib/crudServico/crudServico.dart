@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:Projetao3/crudServico/crudServicosArgs.dart';
 import 'package:Projetao3/infrastructure/constants.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +18,10 @@ class _CrudServicoState extends State<CrudServico> {
   CartaServicos _cartaServicos;
   String _tipo, uid;
   Future<List> _imagens;
+  List _imagensURL;
   Servico _servico;
   LoginAuth auth = Authentication.loginAuth;
+  bool _newImagemWasUploaded;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -31,10 +35,10 @@ class _CrudServicoState extends State<CrudServico> {
     super.initState();
     auth.authChangeListener();
     uid = auth.getUid();
-    setState(() {
-      _imagens = Future.delayed(Duration(seconds: 4),
-          () => imageProvider.getAllImagesOfAService(uid, _tipo));
-    });
+    _imagens = Future.delayed(
+        Duration(seconds: 4),
+        () => imageProvider.getAllImagesOfAService(uid, _tipo),
+    );
   }
 
   @override
@@ -120,7 +124,7 @@ class _CrudServicoState extends State<CrudServico> {
                   Constants.MEDIUM_HEIGHT_BOX,
                   TextButton.icon(
                       onPressed: () {
-                        Future<String> imageURL = imageProvider.sendImage(
+                        imageProvider.sendImage(
                             ImageSource.camera, _tipo, uid);
                       },
                       icon: Icon(Icons.camera),
@@ -129,28 +133,15 @@ class _CrudServicoState extends State<CrudServico> {
                   FutureBuilder<List<dynamic>>(
                       future: _imagens,
                       builder: (context, snapshot) {
+
                         switch (snapshot.connectionState) {
                           case ConnectionState.done:
-                            print("Snapshot data: ${snapshot.data}");
-                            return GridView.count(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 5,
-                                crossAxisSpacing: 5,
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                children: List.generate(snapshot.data.length,
-                                    (index) {
-                                  String imageURL = snapshot.data[index];
-
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: NetworkImage(imageURL),
-                                      ),
-                                    ),
-                                  );
-                                }));
+                            _imagensURL = snapshot.data;
+                            return _buildGridView();
                             break;
+                          case ConnectionState.none:
+                            Scaffold.of(context).showSnackBar(SnackBar(content: Text("Não foi possível recuperar as imagens...")));
+                            return null;
                           default:
                             return Center(
                               child: CircularProgressIndicator(),
@@ -173,5 +164,28 @@ class _CrudServicoState extends State<CrudServico> {
         ),
       ),
     );
+  }
+
+  _buildGridView() {
+    return GridView.count(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 5,
+                                crossAxisSpacing: 5,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                children: List.generate(_imagensURL.length,
+                                    (index) {
+                                  String imageURL = _imagensURL[index];
+
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(imageURL),
+                                      ),
+                                    ),
+                                  );
+                                }));
   }
 }
