@@ -47,7 +47,7 @@ class _ProfileState extends State<Profile> {
     }
   }
 
-  _onSaveFields() {
+  _onSaveFields() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       String uid = auth.getUid();
@@ -55,7 +55,7 @@ class _ProfileState extends State<Profile> {
       String genero = _dropdownValue;
       String email = auth.getUserEmail();
       DocumentReference servicos =
-          _cartaServicosController.save(_cartaServicos);
+          await _cartaServicosController.save(_cartaServicos);
 
       _usuario = Usuario(
         uid: uid,
@@ -65,6 +65,7 @@ class _ProfileState extends State<Profile> {
         servicos: servicos,
       );
       _usuarioController.saveUsuario(_usuario);
+      Navigator.pushNamed(context, '/workers');
     }
   }
 

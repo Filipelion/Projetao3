@@ -1,6 +1,8 @@
+import 'package:Projetao3/infrastructure/cartaServico.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import './database_integration.dart';
 
 class OiaImageProvider {
   Future<File> getImage(ImageSource source) async {
@@ -24,9 +26,12 @@ class OiaImageProvider {
           .child(datetime)
           .putFile(imageFile);
 
-      task.whenComplete(
-          () async => imageURL = await this.getImageURL(uid, tipo, datetime));
-      return imageURL;
+      return await task.whenComplete(() async {
+        imageURL = await this.getImageURL(uid, tipo, datetime);
+        print(imageURL);
+      }).then((value) {
+        return imageURL;
+      });
     }
     return null;
   }
@@ -46,15 +51,34 @@ class OiaImageProvider {
   Future<List> getAllImagesOfAService(String uid, String tipo) async {
     List images = [];
 
-    Reference storagereference =
-        FirebaseStorage.instance.ref('Servicos').child(uid).child(tipo);
+    final usuarioController = UsuarioController();
+    bool usuarioIsInDatabase = await usuarioController.usuarioIsInDatabase(uid);
 
-    ListResult listResult = await storagereference.listAll();
-    listResult.items.forEach((imgReference) async {
-      String imgURL = await imgReference.getDownloadURL();
-      images.add(imgURL);
-    });
-
+    if (usuarioIsInDatabase) {
+      try {
+        CartaServicos cartaServicos =
+            await usuarioController.getUsuarioCartaServicos(uid);
+        Servico servico = cartaServicos.getServico(tipo);
+        images = servico.imagens;
+        return images;
+      } catch (e) {
+        print(e);
+        print("Foi encontrado um erro e nenhuma imagem foi encontrada.");
+        return images;
+      }
+    }
+    print("Nenhuma imagem foi encontrada");
     return images;
+
+    // Reference storagereference =
+    //     FirebaseStorage.instance.ref('Servicos').child(uid).child(tipo);
+
+    // ListResult listResult = await storagereference.listAll();
+    // listResult.items.forEach((imgReference) async {
+    //   String imgURL = await imgReference.getDownloadURL();
+    //   images.add(imgURL);
+    // });
+
+    // return images;
   }
 }

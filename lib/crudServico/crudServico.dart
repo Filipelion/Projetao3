@@ -18,8 +18,7 @@ class _CrudServicoState extends State<CrudServico> {
   CartaServicos _cartaServicos;
   String _tipo, uid;
   Future<List> _imagens;
-  List _imagensURL;
-  Servico _servico;
+  List _imagensURL = [];
   LoginAuth auth = Authentication.loginAuth;
   bool _newImagemWasUploaded;
 
@@ -36,9 +35,35 @@ class _CrudServicoState extends State<CrudServico> {
     auth.authChangeListener();
     uid = auth.getUid();
     _imagens = Future.delayed(
-        Duration(seconds: 4),
-        () => imageProvider.getAllImagesOfAService(uid, _tipo),
+      Duration(seconds: 4),
+      () => imageProvider.getAllImagesOfAService(uid, _tipo),
     );
+    _valorMedioController = TextEditingController();
+    _descricaoController = TextEditingController();
+  }
+
+  _onSaveFields() {
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+
+      String valorMedioText = _valorMedioController.value.text;
+      num valorMedio = valorMedioText != "" ? num.parse(valorMedioText) : 0;
+
+      String descricao = _descricaoController.value.text;
+
+      Map<String, dynamic> json = {
+        'tipo': _tipo,
+        'imagens': _imagensURL,
+        'valorMedio': valorMedio,
+        'descricao': descricao,
+      };
+
+      Servico _servico = Servico.fromJson(json);
+      Map<String, dynamic> servicoData = _servico.toJson();
+      _cartaServicos.save(_tipo, servicoData);
+      print(_cartaServicos.get().toString());
+      Navigator.pushNamed(context, '/profile', arguments: _cartaServicos);
+    }
   }
 
   @override
@@ -47,7 +72,6 @@ class _CrudServicoState extends State<CrudServico> {
     setState(() {
       _cartaServicos = args.cartaServicos;
       _tipo = args.tipo;
-
       // Recuperando as informações do Servico
       // _servico = _cartaServicos.getServico(_tipo);
 
@@ -87,6 +111,7 @@ class _CrudServicoState extends State<CrudServico> {
             ),
             Constants.LARGE_HEIGHT_BOX,
             TextFormField(
+              controller: _valorMedioController,
               decoration: InputDecoration(
                 isDense: true,
                 labelText: "Valor Médio (R\$)",
@@ -96,6 +121,7 @@ class _CrudServicoState extends State<CrudServico> {
             ),
             Constants.MEDIUM_HEIGHT_BOX,
             TextFormField(
+              controller: _descricaoController,
               decoration: InputDecoration(
                 isDense: true,
                 labelText: "Descrição",
@@ -124,8 +150,17 @@ class _CrudServicoState extends State<CrudServico> {
                   Constants.MEDIUM_HEIGHT_BOX,
                   TextButton.icon(
                       onPressed: () {
-                        imageProvider.sendImage(
-                            ImageSource.camera, _tipo, uid);
+                        imageProvider
+                            .sendImage(ImageSource.camera, _tipo, uid)
+                            .then((value) {
+                          if (value != null) {
+                            print(value);
+                            setState(() {
+                              _imagensURL.add(value);
+                              print(_imagensURL);
+                            });
+                          }
+                        });
                       },
                       icon: Icon(Icons.camera),
                       label: Text("Adicionar imagem")),
@@ -133,14 +168,15 @@ class _CrudServicoState extends State<CrudServico> {
                   FutureBuilder<List<dynamic>>(
                       future: _imagens,
                       builder: (context, snapshot) {
-
                         switch (snapshot.connectionState) {
                           case ConnectionState.done:
-                            _imagensURL = snapshot.data;
+                            _imagensURL = snapshot.data ?? [];
                             return _buildGridView();
                             break;
                           case ConnectionState.none:
-                            Scaffold.of(context).showSnackBar(SnackBar(content: Text("Não foi possível recuperar as imagens...")));
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                                content: Text(
+                                    "Não foi possível recuperar as imagens...")));
                             return null;
                           default:
                             return Center(
@@ -154,10 +190,7 @@ class _CrudServicoState extends State<CrudServico> {
             Constants.MEDIUM_HEIGHT_BOX,
             OiaLargeButton(
               title: "Salvar",
-              onPressed: () {
-                Navigator.pushNamed(context, '/profile',
-                    arguments: _cartaServicos);
-              },
+              onPressed: _onSaveFields,
             ),
             Constants.LARGE_HEIGHT_BOX,
           ],
@@ -168,24 +201,23 @@ class _CrudServicoState extends State<CrudServico> {
 
   _buildGridView() {
     return GridView.count(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 5,
-                                crossAxisSpacing: 5,
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                children: List.generate(_imagensURL.length,
-                                    (index) {
-                                  String imageURL = _imagensURL[index];
+        crossAxisCount: 2,
+        mainAxisSpacing: 5,
+        crossAxisSpacing: 5,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: List.generate(_imagensURL.length, (index) {
+          String imageURL = _imagensURL[index];
 
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: NetworkImage(imageURL),
-                                      ),
-                                    ),
-                                  );
-                                }));
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: NetworkImage(imageURL),
+              ),
+            ),
+          );
+        }));
   }
 }

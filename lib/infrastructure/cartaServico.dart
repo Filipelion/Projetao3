@@ -11,7 +11,7 @@ class Servico {
     if (json == null) return;
     this.tipo = json["tipo"] ?? "";
     this.descricao = json["descricao"] ?? "";
-    this.valorMedio = json["valorMedio"] ?? "";
+    this.valorMedio = json["valorMedio"] ?? 0;
     this.imagens = json["imagens"] ?? [];
   }
 
@@ -33,7 +33,7 @@ class CartaServicos {
     return this.cartaServicos;
   }
 
-  getServico(String tipo) {
+  Servico getServico(String tipo) {
     Map json = this.cartaServicos[tipo];
     Servico servico = Servico.fromJson(json);
     return servico;
