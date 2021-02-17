@@ -17,7 +17,7 @@ class UsuarioController {
     return this._usuarios.doc(id).get();
   }
 
-  FutureOr<Usuario> getUsuarioData(String id) async {
+  Future<Usuario> getUsuarioData(String id) async {
     try {
       // Tentando recuperar os dados do usuário do banco de dados
       DocumentSnapshot snapshot = await this.getUsuarioByID(id);

@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../custom_widgets/oiaWidgets.dart';
 import '../infrastructure/cartaServico.dart';
+import '../infrastructure/database_integration.dart';
+import '../infrastructure/database_integration.dart';
+import '../infrastructure/database_integration.dart';
+import '../infrastructure/database_integration.dart';
 import '../infrastructure/imageProvider.dart';
 import '../infrastructure/loginAuth.dart';
 
@@ -20,12 +24,12 @@ class _CrudServicoState extends State<CrudServico> {
   Future<List> _imagens;
   List _imagensURL = [];
   LoginAuth auth = Authentication.loginAuth;
-  bool _newImagemWasUploaded;
+  CartaServicosController _cartaServicosController = CartaServicosController();
 
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController _valorMedioController;
-  TextEditingController _descricaoController;
+  TextEditingController _valorMedioController, _descricaoController;
+  String _valorMedio, _descricao;
 
   final imageProvider = OiaImageProvider();
   @override
@@ -38,8 +42,10 @@ class _CrudServicoState extends State<CrudServico> {
       Duration(seconds: 4),
       () => imageProvider.getAllImagesOfAService(uid, _tipo),
     );
-    _valorMedioController = TextEditingController();
-    _descricaoController = TextEditingController();
+
+    // Servico _servico = _cartaServicos.getServico(_tipo);
+    // String valorMedio = _servico.valorMedio.toString();
+    // String descricao = _servico.descricao;
   }
 
   _onSaveFields() {
@@ -72,14 +78,12 @@ class _CrudServicoState extends State<CrudServico> {
     setState(() {
       _cartaServicos = args.cartaServicos;
       _tipo = args.tipo;
-      // Recuperando as informações do Servico
-      // _servico = _cartaServicos.getServico(_tipo);
 
-      // Map servicoData = _servico.toJson();
-      // num valorMedio = servicoData["valorMedio"];
-
-      // _valorMedioController =
-      //     TextEditingController(text: valorMedio.toString());
+      Servico _servico = _cartaServicos.getServico(_tipo);
+      _valorMedio = _servico.valorMedio.toString();
+      _descricao = _servico.descricao;
+      _valorMedioController = TextEditingController(text: _valorMedio);
+      _descricaoController = TextEditingController(text: _descricao);
     });
 
     return OiaScaffold(

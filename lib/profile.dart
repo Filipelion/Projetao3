@@ -89,10 +89,9 @@ class _ProfileState extends State<Profile> {
   }
 
   _buildBody(context) {
-    // TODO: fazer com que as rotas recebam a carta de servicos
     _cartaServicos = ModalRoute.of(context).settings.arguments;
     List _categorias = _cartaServicos.tipos();
-    // List _categorias = ModalRoute.of(context).settings.arguments;
+
     return SingleChildScrollView(
       child: Column(
         children: [

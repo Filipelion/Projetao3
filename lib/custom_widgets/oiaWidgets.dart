@@ -1,9 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import '../infrastructure/cartaServico.dart';
 import '../infrastructure/constants.dart';
 import '../infrastructure/constants.dart';
+import '../infrastructure/database_integration.dart';
+import '../infrastructure/database_integration.dart';
 import '../infrastructure/loginAuth.dart';
+import '../infrastructure/usuario.dart';
 
 class OiaFlexibleAppbar extends StatelessWidget {
   @override
@@ -63,6 +65,7 @@ class OiaScaffold extends StatefulWidget {
   final String appBarTitle;
   final Widget body;
   final bool showBottomBar;
+
   const OiaScaffold(
       {Key key, this.appBarTitle, this.body, this.showBottomBar = false})
       : super(key: key);
@@ -73,6 +76,7 @@ class OiaScaffold extends StatefulWidget {
 class _OiaScaffoldState extends State<OiaScaffold> {
   LoginAuth auth = Authentication.loginAuth;
   bool _isLoggedIn = false;
+  String uid;
 
   @override
   void initState() {
@@ -81,6 +85,7 @@ class _OiaScaffoldState extends State<OiaScaffold> {
     if (auth.userIsLoggedIn()) {
       setState(() {
         _isLoggedIn = true;
+        uid = auth.getUid();
       });
     }
   }
@@ -101,8 +106,11 @@ class _OiaScaffoldState extends State<OiaScaffold> {
         padding: EdgeInsets.symmetric(horizontal: Constants.largeSpace),
       ),
       drawer: OiaSidebar(),
-      bottomNavigationBar:
-          widget.showBottomBar && _isLoggedIn ? OiaBottomBar() : null,
+      bottomNavigationBar: widget.showBottomBar && _isLoggedIn
+          ? OiaBottomBar(
+              uid: this.uid,
+            )
+          : null,
     );
   }
 }
@@ -229,6 +237,9 @@ class OiaSidebarHeader extends StatelessWidget {
 }
 
 class OiaBottomBar extends StatefulWidget {
+  final String uid;
+  const OiaBottomBar({Key key, this.uid}) : super(key: key);
+
   @override
   _OiaBottomBarState createState() => _OiaBottomBarState();
 }
@@ -246,7 +257,13 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
     // Indo para a próxima tela
     if (index == 2) {
       // TODO: Recuperar os serviços de um usuário e passar em uma lista para a tela de perfil.
-      Navigator.pushNamed(context, route, arguments: ["teste"]);
+      String uid = widget.uid;
+      CartaServicosController cartaServicosController =
+          CartaServicosController();
+      Future<CartaServicos> cartaServicos = cartaServicosController.get(uid);
+      cartaServicos.then((value) {
+        Navigator.pushNamed(context, route, arguments: value);
+      });
     } else {
       Navigator.pushNamed(context, route);
     }
