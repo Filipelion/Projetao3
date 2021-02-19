@@ -34,6 +34,14 @@ class UsuarioController {
     }
   }
 
+  Future<List> getAllWorkers() async {
+    QuerySnapshot snapshot = await _usuarios.get();
+    snapshot.docs.map((document) {
+      Map<String, dynamic> workerData = document.data();
+      return workerData;
+    }).toList();
+  }
+
   FutureOr<bool> usuarioIsInDatabase(String id) async {
     DocumentSnapshot documentSnapshot = await this.getUsuarioByID(id);
     try {

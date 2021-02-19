@@ -2,6 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import './custom_widgets/oiaWidgets.dart';
 import './infrastructure/loginAuth.dart';
+import './infrastructure/database_integration.dart';
+import 'infrastructure/database_integration.dart';
+import 'infrastructure/database_integration.dart';
 
 class WorkersPage extends StatefulWidget {
   @override
@@ -30,7 +33,6 @@ class WorkersList extends StatefulWidget {
 class _WorkersListState extends State<WorkersList> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
@@ -65,12 +67,13 @@ class WorkerListScreen extends StatefulWidget {
 
 class _WorkerListScreenState extends State<WorkerListScreen> {
   LoginAuth auth = Authentication.loginAuth;
+  UsuarioController _usuarioController = UsuarioController();
+
   bool isLoggedIn = false;
   String uid;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     auth.authChangeListener();
     if (auth.userIsLoggedIn()) {
@@ -89,7 +92,9 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
         uid: this.uid,
       ),
       body: CustomScrollView(
-        slivers: [OiaFlexibleAppbar()],
+        slivers: [
+          OiaFlexibleAppbar(),
+        ],
       ),
     );
   }

@@ -1,14 +1,9 @@
-import 'dart:io';
-
 import 'package:Projetao3/crudServico/crudServicosArgs.dart';
 import 'package:Projetao3/infrastructure/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../custom_widgets/oiaWidgets.dart';
 import '../infrastructure/cartaServico.dart';
-import '../infrastructure/database_integration.dart';
-import '../infrastructure/database_integration.dart';
-import '../infrastructure/database_integration.dart';
 import '../infrastructure/database_integration.dart';
 import '../infrastructure/imageProvider.dart';
 import '../infrastructure/loginAuth.dart';
@@ -34,7 +29,6 @@ class _CrudServicoState extends State<CrudServico> {
   final imageProvider = OiaImageProvider();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     auth.authChangeListener();
     uid = auth.getUid();
