@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import './custom_widgets/oiaWidgets.dart';
@@ -16,6 +17,7 @@ class _WorkersPageState extends State<WorkersPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    Firebase.initializeApp();
     // Navigator.pop(context);
   }
 
@@ -31,6 +33,8 @@ class WorkersList extends StatefulWidget {
 }
 
 class _WorkersListState extends State<WorkersList> {
+  UsuarioController _usuarioController = UsuarioController();
+
   @override
   void initState() {
     super.initState();
@@ -39,11 +43,11 @@ class _WorkersListState extends State<WorkersList> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: Firebase.initializeApp(),
+        future: _usuarioController.getAllWorkers(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return WorkerListScreen();
-          } else if (snapshot.connectionState == ConnectionState.none) {
+          if (snapshot.hasData) {
+            return WorkerListScreen(workers: snapshot.data,);
+          } else if (snapshot.hasError) {
             return Scaffold(
               body: SnackBar(
                 content: Text("Não foi possível acessar o app."),
@@ -61,6 +65,9 @@ class _WorkersListState extends State<WorkersList> {
 }
 
 class WorkerListScreen extends StatefulWidget {
+  final List workers;
+  const WorkerListScreen({Key key, this.workers}) : super(key: key);
+
   @override
   _WorkerListScreenState createState() => _WorkerListScreenState();
 }
@@ -84,6 +91,10 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
     }
   }
 
+  List _getWorkers() {
+    return widget.workers;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,8 +105,22 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
       body: CustomScrollView(
         slivers: [
           OiaFlexibleAppbar(),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return Column(
+                  children: [Divider(height: 2.0), 
+                  OiaListTile(title: "Vinícius Vieira", 
+                  subtitle: "Desenvolvedor",
+                  )
+                ],);
+              },
+              childCount: _getWorkers().length,
+            )),
         ],
       ),
     );
   }
+
 }
+

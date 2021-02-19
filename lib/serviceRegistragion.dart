@@ -50,6 +50,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
   @override
   Widget build(BuildContext context) {
+    
     return OiaScaffold(
       appBarTitle: auth.getUserProfileName(),
       body: SafeArea(

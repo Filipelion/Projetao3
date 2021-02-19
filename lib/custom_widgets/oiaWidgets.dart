@@ -365,3 +365,12 @@ class OiaClickableCard extends StatelessWidget {
     );
   }
 }
+
+class OiaListTile extends StatelessWidget {
+  String title, subtitle;
+  OiaListTile({Key key, this.title, this.subtitle}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(tileColor: Colors.white54, title: Text(this.title, style: TextStyle(fontWeight: FontWeight.bold),), subtitle: Text(this.subtitle, style: TextStyle(fontSize: Constants.smallFontSize),),);
+  }
+}
