@@ -116,16 +116,19 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
           SliverList(
               delegate: SliverChildBuilderDelegate(
             (context, index) {
+              String nomeUsuario = workers[index]['nome'];
               return Column(
                 children: [
                   Divider(height: 2.0),
                   OiaListTile(
-                    title: workers[index]['nome'],
+                    title: nomeUsuario,
                     subtitle: _textOnSearch,
                     onTap: () {
                       // TODO: é preciso passar o nome da profissão
                       String uid = workers[index]['uid'];
-                      Navigator.pushNamed(context, '/worker_info', arguments: uid);
+                      Map args = {'uid' : uid, 'tag' : _textOnSearch, 'nome' : nomeUsuario};
+
+                      Navigator.pushNamed(context, '/worker_info', arguments: args);
                     },
                   )
                 ],

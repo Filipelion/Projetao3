@@ -202,19 +202,29 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
     });
 
     String route = _routes[index];
+    String uid = widget.uid;
+
     // Indo para a próxima tela
-    if (index == 2) {
-      // TODO: Recuperar os serviços de um usuário e passar em uma lista para a tela de perfil.
-      String uid = widget.uid;
-      CartaServicosController cartaServicosController =
-          CartaServicosController();
-      Future<CartaServicos> cartaServicos = cartaServicosController.get(uid);
-      cartaServicos.then((value) {
-        Navigator.pushNamed(context, route, arguments: value);
-      });
-    } else {
-      Navigator.pushNamed(context, route);
-    }
+
+    // Se o usuário não estiver logado ele será direcionado para a tela de login
+    // if (uid == null || uid == "") {
+    //   Navigator.pushNamed(context, '/login');
+    // } else {
+      // Se o usuário clicar no botão de perfil, será gerada sua Carta de Serviço antes
+      // dele poder acessar essa rota.
+      if (index == 2) {
+        // TODO: Recuperar os serviços de um usuário e passar em uma lista para a tela de perfil.
+
+        CartaServicosController cartaServicosController =
+            CartaServicosController();
+        Future<CartaServicos> cartaServicos = cartaServicosController.get(uid);
+        cartaServicos.then((value) {
+          Navigator.pushNamed(context, route, arguments: value);
+        });
+      } else {
+        Navigator.pushNamed(context, route);
+      }
+    // }
   }
 
   @override
