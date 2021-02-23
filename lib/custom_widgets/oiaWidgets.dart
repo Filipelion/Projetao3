@@ -5,61 +5,7 @@ import '../infrastructure/constants.dart';
 import '../infrastructure/database_integration.dart';
 import '../infrastructure/database_integration.dart';
 import '../infrastructure/loginAuth.dart';
-import '../infrastructure/usuario.dart';
 
-class OiaFlexibleAppbar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SliverAppBar(
-      backgroundColor: Constants.COR_MOSTARDA,
-      iconTheme: IconThemeData(color: Colors.black),
-      floating: true,
-      expandedHeight: 200,
-      flexibleSpace: Container(
-        margin: EdgeInsets.only(
-            top: Constants.mediumSpace, bottom: Constants.largeSpace),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Constants.mediumSpace),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Image.asset(
-                    "assets/icons/satellite_icon.png",
-                    width: 50,
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.4,
-                    child: Text(
-                      "Encontre\nprofissionais",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: Constants.regularFontSize),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Constants.MEDIUM_HEIGHT_BOX,
-            Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    focusColor: Colors.white,
-                    hoverColor: Colors.white,
-                    hintText: "Buscar...",
-                    prefixIcon: Icon(Icons.search),
-                    fillColor: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class OiaScaffold extends StatefulWidget {
   final String appBarTitle;
@@ -113,6 +59,8 @@ class _OiaScaffoldState extends State<OiaScaffold> {
           : null,
     );
   }
+
+  
 }
 
 class OiaSidebar extends StatefulWidget {
@@ -368,9 +316,15 @@ class OiaClickableCard extends StatelessWidget {
 
 class OiaListTile extends StatelessWidget {
   String title, subtitle;
-  OiaListTile({Key key, this.title, this.subtitle}) : super(key: key);
+  Function onTap;
+
+  OiaListTile({Key key, this.title, this.subtitle, this.onTap}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return ListTile(tileColor: Colors.white54, title: Text(this.title, style: TextStyle(fontWeight: FontWeight.bold),), subtitle: Text(this.subtitle, style: TextStyle(fontSize: Constants.smallFontSize),),);
+    return ListTile(
+      tileColor: Colors.white54, title: Text(this.title, style: TextStyle(fontWeight: FontWeight.bold),), 
+      subtitle: Text(this.subtitle, style: TextStyle(fontSize: Constants.smallFontSize),),
+      onTap: this.onTap,
+    );
   }
 }

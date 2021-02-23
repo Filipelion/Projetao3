@@ -6,6 +6,7 @@ import './infrastructure/loginAuth.dart';
 import './infrastructure/database_integration.dart';
 import 'infrastructure/database_integration.dart';
 import 'infrastructure/database_integration.dart';
+import 'infrastructure/constants.dart';
 
 class WorkersPage extends StatefulWidget {
   @override
@@ -79,7 +80,11 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
   UsuarioController _usuarioController = UsuarioController();
 
   bool isLoggedIn = false;
-  String uid;
+  String _uid;
+
+  final _searchKey = GlobalKey<FormState>();
+  final _searchController = TextEditingController();
+  String _textOnSearch = "Sem classificação";
 
   @override
   void initState() {
@@ -88,7 +93,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
     if (auth.userIsLoggedIn()) {
       setState(() {
         isLoggedIn = true;
-        uid = auth.getUid();
+        _uid = auth.getUid();
       });
     }
   }
@@ -99,14 +104,15 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Map> workers = _getWorkers();
     return Scaffold(
       drawer: OiaSidebar(),
       bottomNavigationBar: OiaBottomBar(
-        uid: this.uid,
+        uid: this._uid,
       ),
       body: CustomScrollView(
         slivers: [
-          OiaFlexibleAppbar(),
+          _buildAppBar(),
           SliverList(
               delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -114,16 +120,99 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                 children: [
                   Divider(height: 2.0),
                   OiaListTile(
-                    title: "Vinícius Vieira",
-                    subtitle: "Desenvolvedor",
+                    title: workers[index]['nome'],
+                    subtitle: _textOnSearch,
+                    onTap: () {
+                      // TODO: é preciso passar o nome da profissão
+                      String uid = workers[index]['uid'];
+                      Navigator.pushNamed(context, '/worker_info', arguments: uid);
+                    },
                   )
                 ],
               );
             },
-            childCount: _getWorkers().length,
+            childCount: workers.length,
           )),
         ],
       ),
     );
+  }
+
+  _buildAppBar() {
+    return SliverAppBar(
+      backgroundColor: Constants.COR_MOSTARDA,
+      iconTheme: IconThemeData(color: Colors.black),
+      floating: true,
+      expandedHeight: 200,
+      flexibleSpace: Container(
+        margin: EdgeInsets.only(
+            top: Constants.mediumSpace, bottom: Constants.largeSpace),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Constants.mediumSpace),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Image.asset(
+                    "assets/icons/satellite_icon.png",
+                    width: 50,
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    child: Text(
+                      "Encontre\nprofissionais",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: Constants.regularFontSize),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Constants.LARGE_HEIGHT_BOX,
+            Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Form(
+                key: _searchKey,
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: TextFormField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            focusColor: Colors.white,
+                            hoverColor: Colors.white,
+                            hintText: "Buscar...",
+                            prefixIcon: Icon(Icons.search),
+                            isDense: true,
+                            fillColor: Colors.white,   
+                        ),
+                        validator: (value) {
+                          if(value.isEmpty) return "Insira o nome da profissão";
+                        },
+                      ),
+                    ),
+                    Constants.SMALL_WIDTH_BOX,
+                    IconButton(icon: Icon(Icons.send), onPressed: _onSaveFields)
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _onSaveFields() {
+    if (_searchKey.currentState.validate()) {
+      _searchKey.currentState.save();
+      setState(() {
+        _textOnSearch = _searchController.text;
+      });
+      _searchKey.currentState.reset();
+    }
   }
 }

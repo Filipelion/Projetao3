@@ -1,4 +1,5 @@
 import 'package:Projetao3/crudServico/crudServico.dart';
+import 'package:Projetao3/perfil_visualizacao.dart';
 import 'package:Projetao3/profile.dart';
 import 'package:Projetao3/workersList.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
       '/service_registration': (context) => ServiceRegistration(),
       '/profile': (context) => Profile(),
       '/servico': (context) => CrudServico(),
+      '/worker_info' : (context) => WorkerProfile(),
     };
   }
 }

@@ -84,8 +84,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                           });
                         },
                         validator: (String texto) {
-                          if (texto == null) return "O texto não pode ser nulo";
-                          return null;
+                          if (texto.isEmpty) return "O texto não pode ser nulo";
                         },
                       ),
                     ),
