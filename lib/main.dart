@@ -1,6 +1,7 @@
 import 'package:Projetao3/crudServico/crudServico.dart';
 import 'package:Projetao3/profile.dart';
 import 'package:Projetao3/workersList.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'serviceRegistragion.dart';
 import 'src/login.dart';
@@ -9,7 +10,11 @@ import 'src/registerPhoto.dart';
 import 'workersList.dart';
 //import 'src/perfilShift.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override

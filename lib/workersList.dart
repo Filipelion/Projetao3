@@ -15,10 +15,7 @@ class WorkersPage extends StatefulWidget {
 class _WorkersPageState extends State<WorkersPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    Firebase.initializeApp();
-    // Navigator.pop(context);
   }
 
   @override
@@ -43,10 +40,15 @@ class _WorkersListState extends State<WorkersList> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: _usuarioController.getAllWorkers(),
+        future: Future.delayed(
+            Duration(seconds: 4), _usuarioController.getAllWorkers),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return WorkerListScreen(workers: snapshot.data,);
+          if (snapshot.hasData ||
+              snapshot.connectionState == ConnectionState.done) {
+            print(snapshot.data);
+            return WorkerListScreen(
+              workers: snapshot.data,
+            );
           } else if (snapshot.hasError) {
             return Scaffold(
               body: SnackBar(
@@ -106,21 +108,22 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
         slivers: [
           OiaFlexibleAppbar(),
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return Column(
-                  children: [Divider(height: 2.0), 
-                  OiaListTile(title: "Vinícius Vieira", 
-                  subtitle: "Desenvolvedor",
+              delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              return Column(
+                children: [
+                  Divider(height: 2.0),
+                  OiaListTile(
+                    title: "Vinícius Vieira",
+                    subtitle: "Desenvolvedor",
                   )
-                ],);
-              },
-              childCount: _getWorkers().length,
-            )),
+                ],
+              );
+            },
+            childCount: _getWorkers().length,
+          )),
         ],
       ),
     );
   }
-
 }
-

@@ -33,9 +33,9 @@ class UsuarioController {
     }
   }
 
-  Future<List> getAllWorkers() async {
+  FutureOr<List> getAllWorkers() async {
     QuerySnapshot snapshot = await _usuarios.get();
-    snapshot.docs.map((document) {
+    return snapshot.docs.map((document) {
       Map<String, dynamic> workerData = document.data();
       return workerData;
     }).toList();
