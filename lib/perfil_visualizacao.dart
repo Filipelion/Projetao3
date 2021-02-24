@@ -14,7 +14,9 @@ class WorkerProfile extends StatefulWidget {
 }
 
 class _WorkerProfileState extends State<WorkerProfile> {
-  String _uid, _tag, nomeUsuario, _descricao, _valorMedio;
+  String _uid, _tag, nomeUsuario, _descricao;
+  num _valorMedio;
+
   final imageProvider = OiaImageProvider();
   final cartaServicosController = CartaServicosController();
 
@@ -29,16 +31,17 @@ class _WorkerProfileState extends State<WorkerProfile> {
   @override
   Widget build(BuildContext context) {
     Map args = ModalRoute.of(context).settings.arguments;
+
     setState(() {
       _uid = args['uid'];
       _tag = args['tag'];
       nomeUsuario = args['nome'];
+
       cartaServicosController.get(_uid).then((value) {
         Map cartaServicos = value.cartaServicos;
-        _descricao = cartaServicos['descricao'];
-        _valorMedio = cartaServicos['valorMedio'];
+        _descricao = cartaServicos[_tag]['descricao'];
+        _valorMedio = cartaServicos[_tag]['valorMedio'];
       });
-
 
       _imagens = Future.delayed(
         Duration(seconds: 4),
@@ -73,17 +76,80 @@ class _WorkerProfileState extends State<WorkerProfile> {
   }
 
   _buildBody() {
-    return Column(
-      children: [
-        Constants.SMALL_HEIGHT_BOX,
-        _buildCarousel(_imagensURL),
-        Constants.MEDIUM_HEIGHT_BOX,
-        Text("Descrição", style: TextStyle(fontSize: Constants.regularFontSize, color: Colors.black, fontWeight: FontWeight.bold), textAlign: TextAlign.left,),
-        Constants.SMALL_HEIGHT_BOX,
-        Text(_descricao ?? "", textAlign: TextAlign.justify,),
-        Constants.SMALL_HEIGHT_BOX,
-        Text("Valor Médio", style: TextStyle(fontSize: Constants.regularFontSize, color: Colors.black, fontWeight: FontWeight.bold), textAlign: TextAlign.left,),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Constants.SMALL_HEIGHT_BOX,
+          _buildCarousel(_imagensURL),
+          Constants.LARGE_HEIGHT_BOX,
+          Container(
+            decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(10)),
+            padding: EdgeInsets.all(Constants.smallSpace),
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Descrição",
+                  style: TextStyle(
+                      fontSize: Constants.mediumFontSize,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.left,
+                ),
+                Constants.SMALL_HEIGHT_BOX,
+                Text(
+                  _descricao ?? "",
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(fontSize: Constants.regularFontSize),
+                ),
+              ],
+            ),
+          ),
+          Constants.MEDIUM_HEIGHT_BOX,
+          Container(
+            decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(10)),
+            padding: EdgeInsets.all(Constants.smallSpace),
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Valor Médio",
+                  style: TextStyle(
+                      fontSize: Constants.mediumFontSize,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.left,
+                ),
+                Constants.SMALL_HEIGHT_BOX,
+                Text(
+                  _valorMedio == 0 || _valorMedio == null
+                      ? "Sem preço definido"
+                      : "R\$ $_valorMedio",
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(fontSize: Constants.regularFontSize),
+                ),
+              ],
+            ),
+          ),
+          Constants.LARGE_HEIGHT_BOX,
+          OiaLargeButton(
+            title: "Encontrar no mapa",
+            onPressed: () {},
+          ),
+          // TODO: Implementar tela de salvar contato
+          OiaLargeButton(
+            title: "Salvar contato",
+            onPressed: () {},
+          ),
+          Constants.MEDIUM_HEIGHT_BOX,
+        ],
+      ),
     );
   }
 

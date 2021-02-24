@@ -32,59 +32,14 @@ class WorkersList extends StatefulWidget {
 
 class _WorkersListState extends State<WorkersList> {
   UsuarioController _usuarioController = UsuarioController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: Future.delayed(
-            Duration(seconds: 4), _usuarioController.getAllWorkers),
-        builder: (context, snapshot) {
-          if (snapshot.hasData ||
-              snapshot.connectionState == ConnectionState.done) {
-            print(snapshot.data);
-            return WorkerListScreen(
-              workers: snapshot.data,
-            );
-          } else if (snapshot.hasError) {
-            return Scaffold(
-              body: SnackBar(
-                content: Text("Não foi possível acessar o app."),
-              ),
-            );
-          }
-
-          return Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        });
-  }
-}
-
-class WorkerListScreen extends StatefulWidget {
-  final List workers;
-  const WorkerListScreen({Key key, this.workers}) : super(key: key);
-
-  @override
-  _WorkerListScreenState createState() => _WorkerListScreenState();
-}
-
-class _WorkerListScreenState extends State<WorkerListScreen> {
   LoginAuth auth = Authentication.loginAuth;
-  UsuarioController _usuarioController = UsuarioController();
-
-  bool isLoggedIn = false;
-  String _uid;
 
   final _searchKey = GlobalKey<FormState>();
   final _searchController = TextEditingController();
   String _textOnSearch = "Sem classificação";
+
+  bool isLoggedIn = false;
+  String _uid;
 
   @override
   void initState() {
@@ -98,13 +53,8 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
     }
   }
 
-  List _getWorkers() {
-    return widget.workers;
-  }
-
   @override
   Widget build(BuildContext context) {
-    List<Map> workers = _getWorkers();
     return Scaffold(
       drawer: OiaSidebar(),
       bottomNavigationBar: OiaBottomBar(
@@ -113,29 +63,7 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
-          SliverList(
-              delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              String nomeUsuario = workers[index]['nome'];
-              return Column(
-                children: [
-                  Divider(height: 2.0),
-                  OiaListTile(
-                    title: nomeUsuario,
-                    subtitle: _textOnSearch,
-                    onTap: () {
-                      // TODO: é preciso passar o nome da profissão
-                      String uid = workers[index]['uid'];
-                      Map args = {'uid' : uid, 'tag' : _textOnSearch, 'nome' : nomeUsuario};
-
-                      Navigator.pushNamed(context, '/worker_info', arguments: args);
-                    },
-                  )
-                ],
-              );
-            },
-            childCount: workers.length,
-          )),
+          _buildFutureBuilder(),
         ],
       ),
     );
@@ -184,16 +112,17 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                       child: TextFormField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            focusColor: Colors.white,
-                            hoverColor: Colors.white,
-                            hintText: "Buscar...",
-                            prefixIcon: Icon(Icons.search),
-                            isDense: true,
-                            fillColor: Colors.white,   
+                          border: OutlineInputBorder(),
+                          focusColor: Colors.white,
+                          hoverColor: Colors.white,
+                          hintText: "Buscar...",
+                          prefixIcon: Icon(Icons.search),
+                          isDense: true,
+                          fillColor: Colors.white,
                         ),
                         validator: (value) {
-                          if(value.isEmpty) return "Insira o nome da profissão";
+                          if (value.isEmpty)
+                            return "Insira o nome da profissão";
                         },
                       ),
                     ),
@@ -217,5 +146,58 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
       });
       _searchKey.currentState.reset();
     }
+  }
+
+  _buildFutureBuilder() {
+    return FutureBuilder(
+        future: Future.delayed(
+            Duration(seconds: 4), _usuarioController.getAllWorkers),
+        builder: (context, snapshot) {
+          if (snapshot.hasData ||
+              snapshot.connectionState == ConnectionState.done) {
+            return _buildSliverList(snapshot.data);
+          } else if (snapshot.hasError) {
+            Scaffold.of(context).showSnackBar(SnackBar(
+              content: Text("Não foi possível acessar o app."),
+            ));
+            return SliverToBoxAdapter(child: Container());
+          }
+
+          return SliverToBoxAdapter(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        });
+  }
+
+  _buildSliverList(List workers) {
+    return SliverList(
+        delegate: SliverChildBuilderDelegate(
+      (context, index) {
+        String nomeUsuario = workers[index]['nome'];
+        return Column(
+          children: [
+            Divider(height: 2.0),
+            OiaListTile(
+              title: nomeUsuario,
+              subtitle: _textOnSearch,
+              onTap: () {
+                // TODO: é preciso passar o nome da profissão
+                String uid = workers[index]['uid'];
+                Map args = {
+                  'uid': uid,
+                  'tag': _textOnSearch,
+                  'nome': nomeUsuario
+                };
+
+                Navigator.pushNamed(context, '/worker_info', arguments: args);
+              },
+            )
+          ],
+        );
+      },
+      childCount: workers.length,
+    ));
   }
 }
