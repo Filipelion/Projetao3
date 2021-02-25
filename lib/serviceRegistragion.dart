@@ -1,14 +1,11 @@
-import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import './custom_widgets/oiaWidgets.dart';
+
 import './infrastructure/loginAuth.dart';
 import './infrastructure/constants.dart';
-import 'infrastructure/constants.dart';
-
 import './infrastructure/database_integration.dart';
-import 'infrastructure/cartaServico.dart';
+import './infrastructure/cartaServico.dart';
+import './infrastructure/server_integration.dart';
 
 class ServiceRegistration extends StatefulWidget {
   @override
@@ -25,6 +22,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
   UsuarioController _usuarioController = UsuarioController();
   CartaServicos _cartaServicos = CartaServicos();
+  ServerIntegration _serverIntegration = ServerIntegration();
 
   bool _userIsLoggedIn = false;
   bool _wasAddedNewServico = false;
@@ -50,7 +48,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
   @override
   Widget build(BuildContext context) {
-    
     return OiaScaffold(
       appBarTitle: auth.getUserProfileName(),
       body: SafeArea(
@@ -90,16 +87,20 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                     ),
                     IconButton(
                       icon: Icon(Icons.search),
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState.validate()) {
-                          setState(() {
-                            _controller.clear();
-                            String tag = this.textoEmBusca;
-                            if (!servicosUsuario.contains(tag))
-                              servicosUsuario.add(tag);
-                            _wasAddedNewServico = true;
-                            _cartaServicos.save(tag, {});
-                          });
+                          // setState(() {
+                          //   _controller.clear();
+
+                          //   if (!servicosUsuario.contains(tag))
+                          //     servicosUsuario.add(tag);
+                          //   _wasAddedNewServico = true;
+                          //   _cartaServicos.save(tag, {});
+                          // });
+                          String tag = this.textoEmBusca;
+                          String retorno = await _serverIntegration
+                              .getSameClusterTags(tag: tag);
+                          print(retorno);
                         }
                       },
                     )

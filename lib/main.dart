@@ -9,7 +9,6 @@ import 'src/login.dart';
 import 'src/register.dart';
 import 'src/registerPhoto.dart';
 import 'workersList.dart';
-//import 'src/perfilShift.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +35,7 @@ class MyApp extends StatelessWidget {
       '/service_registration': (context) => ServiceRegistration(),
       '/profile': (context) => Profile(),
       '/servico': (context) => CrudServico(),
-      '/worker_info' : (context) => WorkerProfile(),
+      '/worker_info': (context) => WorkerProfile(),
     };
   }
 }
