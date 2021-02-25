@@ -101,6 +101,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                           String retorno = await _serverIntegration
                               .getSameClusterTags(tag: tag);
                           print(retorno);
+                          // TODO: Mostrar as tags em um pop-up
                         }
                       },
                     )
@@ -108,7 +109,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                 ),
               ),
               Constants.SMALL_HEIGHT_BOX,
-              // IconButton(icon: , onPressed: null)
               Flexible(
                 child: _buildList(),
               ),

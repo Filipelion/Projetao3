@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 class Servico {
   String tipo, descricao;
   num valorMedio;

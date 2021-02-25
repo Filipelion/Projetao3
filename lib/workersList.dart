@@ -1,10 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import './custom_widgets/oiaWidgets.dart';
 import './infrastructure/loginAuth.dart';
 import './infrastructure/database_integration.dart';
-import 'infrastructure/database_integration.dart';
 import 'infrastructure/database_integration.dart';
 import 'infrastructure/constants.dart';
 
@@ -183,7 +180,6 @@ class _WorkersListState extends State<WorkersList> {
               title: nomeUsuario,
               subtitle: _textOnSearch,
               onTap: () {
-                // TODO: é preciso passar o nome da profissão
                 String uid = workers[index]['uid'];
                 Map args = {
                   'uid': uid,

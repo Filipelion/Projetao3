@@ -11,8 +11,6 @@ import './infrastructure/database_integration.dart';
 import './infrastructure/usuario.dart';
 
 class Profile extends StatefulWidget {
-  List<String> tags;
-
   @override
   _ProfileState createState() => _ProfileState();
 }

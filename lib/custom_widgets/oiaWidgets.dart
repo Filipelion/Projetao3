@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../infrastructure/cartaServico.dart';
 import '../infrastructure/constants.dart';
-import '../infrastructure/constants.dart';
-import '../infrastructure/database_integration.dart';
 import '../infrastructure/database_integration.dart';
 import '../infrastructure/loginAuth.dart';
 
@@ -213,8 +211,6 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
       // Se o usuário clicar no botão de perfil, será gerada sua Carta de Serviço antes
       // dele poder acessar essa rota.
       if (index == 2) {
-        // TODO: Recuperar os serviços de um usuário e passar em uma lista para a tela de perfil.
-
         CartaServicosController cartaServicosController =
             CartaServicosController();
         Future<CartaServicos> cartaServicos = cartaServicosController.get(uid);
@@ -246,10 +242,10 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
 }
 
 class OiaLargeButton extends StatelessWidget {
-  String title;
-  Function onPressed;
+  final String title;
+  final Function onPressed;
 
-  OiaLargeButton({this.title, this.onPressed});
+  const OiaLargeButton({this.title, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -269,11 +265,11 @@ class OiaLargeButton extends StatelessWidget {
 }
 
 class OiaRoundedImage extends StatelessWidget {
-  double width, height, borderWidth;
-  ImageProvider image;
-  Color color;
+  final double width, height, borderWidth;
+  final ImageProvider image;
+  final Color color;
 
-  OiaRoundedImage(
+  const OiaRoundedImage(
       {Key key,
       this.width,
       this.height,
@@ -325,10 +321,10 @@ class OiaClickableCard extends StatelessWidget {
 }
 
 class OiaListTile extends StatelessWidget {
-  String title, subtitle;
-  Function onTap;
+  final String title, subtitle;
+  final Function onTap;
 
-  OiaListTile({Key key, this.title, this.subtitle, this.onTap}) : super(key: key);
+  const OiaListTile({Key key, this.title, this.subtitle, this.onTap}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return ListTile(

@@ -1,5 +1,4 @@
 import 'package:carousel_pro/carousel_pro.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import './custom_widgets/oiaWidgets.dart';
 import './infrastructure/constants.dart';
