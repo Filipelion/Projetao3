@@ -56,6 +56,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
       body: SafeArea(
         child: Container(
           margin: EdgeInsets.symmetric(vertical: Constants.mediumSpace),
+          height: MediaQuery.of(context).size.height * 0.8,
           child: Column(
             children: <Widget>[
               Text(
@@ -92,20 +93,13 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                       icon: Icon(Icons.search),
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
-                          // setState(() {
-                          //   _controller.clear();
-
-                          //   if (!servicosUsuario.contains(tag))
-                          //     servicosUsuario.add(tag);
-                          //   _wasAddedNewServico = true;
-                          //   _cartaServicos.save(tag, {});
-                          // });
                           String tag = this.textoEmBusca;
                           Map retorno = await _serverIntegration
                               .getSameClusterTags(tag: tag);
 
                           setState(() {
-                            this._tags = retorno['tags'];
+                            _controller.clear();
+                            this._tags = retorno['tags'];                            
                           });
 
                           _buildModalBottomSheet(context);
@@ -231,7 +225,15 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                                 return true;
                               },
                             ), // OR null,
-                            onPressed: (item) => print(item),
+                            onPressed: (item) {
+                              print(item.title);
+                              setState(() {
+                                servicosUsuario.add(item.title);
+                                _cartaServicos.save(item.title, {});
+                                _wasAddedNewServico = true;
+
+                              });
+                            },
                             onLongPressed: (item) => print(item),
                           );
                         },

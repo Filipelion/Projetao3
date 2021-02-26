@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ServerIntegration {
-  String _url = "http://9f14d689b57b.ngrok.io";
+  String _url = "http://cb9d3c323515.ngrok.io";
   String _route = "/tags";
 
   getSameClusterTags({String tag}) async {
@@ -17,6 +17,7 @@ class ServerIntegration {
     }
 
     final response = await http.get(customUrl, headers: headers);
+    print(json.decode(response.body));
     return json.decode(response.body) as Map;
   }
 }
