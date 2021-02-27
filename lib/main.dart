@@ -1,14 +1,14 @@
-import 'package:Projetao3/crudServico/crudServico.dart';
-import 'package:Projetao3/perfil_visualizacao.dart';
-import 'package:Projetao3/profile.dart';
-import 'package:Projetao3/workersList.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'serviceRegistragion.dart';
 import 'src/login.dart';
 import 'src/register.dart';
 import 'src/registerPhoto.dart';
-import 'workersList.dart';
+import './workersList.dart';
+import './crudServico/crudServico.dart';
+import './perfil_visualizacao.dart';
+import './profile.dart';
+import './map.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
       '/profile': (context) => Profile(),
       '/servico': (context) => CrudServico(),
       '/worker_info': (context) => WorkerProfile(),
+      '/map' : (context) => MapScreen(),
     };
   }
 }

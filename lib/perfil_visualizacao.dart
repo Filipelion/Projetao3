@@ -139,7 +139,9 @@ class _WorkerProfileState extends State<WorkerProfile> {
           Constants.LARGE_HEIGHT_BOX,
           OiaLargeButton(
             title: "Encontrar no mapa",
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/map');
+            },
           ),
           // TODO: Implementar tela de salvar contato
           OiaLargeButton(
