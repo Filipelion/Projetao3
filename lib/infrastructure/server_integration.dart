@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ServerIntegration {
-  String _url = "http://442f5ee91afe.ngrok.io";
+String _url = "http://dd8b4b1ff163.ngrok.io";
   String _route = "/tags";
 
   Future<Map> getSameClusterTags({String tag}) async {

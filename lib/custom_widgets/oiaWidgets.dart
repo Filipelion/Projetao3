@@ -51,9 +51,7 @@ class _OiaScaffoldState extends State<OiaScaffold> {
       ),
       drawer: OiaSidebar(),
       bottomNavigationBar: widget.showBottomBar && _isLoggedIn
-          ? OiaBottomBar(
-              uid: this.uid,
-            )
+          ? OiaBottomBar()
           : null,
     );
   }
@@ -183,9 +181,6 @@ class OiaSidebarHeader extends StatelessWidget {
 }
 
 class OiaBottomBar extends StatefulWidget {
-  final String uid;
-  const OiaBottomBar({Key key, this.uid}) : super(key: key);
-
   @override
   _OiaBottomBarState createState() => _OiaBottomBarState();
 }
@@ -193,6 +188,22 @@ class OiaBottomBar extends StatefulWidget {
 class _OiaBottomBarState extends State<OiaBottomBar> {
   List _routes = ['/workers', '/service_registration', '/profile'];
   int _currentIndex = 0;
+  LoginAuth _auth = Authentication.loginAuth;
+  bool _isLoggedIn = false;
+  String _uid;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _auth.authChangeListener();
+    if (_auth.userIsLoggedIn()) {
+      setState(() {
+        _uid = _auth.getUid();
+        _isLoggedIn = true;
+      });
+    }
+  }
 
   void _navigateToRoute(int index) {
     setState(() {
@@ -200,27 +211,25 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
     });
 
     String route = _routes[index];
-    String uid = widget.uid;
 
     // Indo para a próxima tela
 
     // Se o usuário não estiver logado ele será direcionado para a tela de login
-    // if (uid == null || uid == "") {
+    // if (_isLoggedIn) {
     //   Navigator.pushNamed(context, '/login');
     // } else {
       // Se o usuário clicar no botão de perfil, será gerada sua Carta de Serviço antes
       // dele poder acessar essa rota.
       if (index == 2) {
-        CartaServicosController cartaServicosController =
-            CartaServicosController();
-        Future<CartaServicos> cartaServicos = cartaServicosController.get(uid);
+        final cartaServicosController = CartaServicosController();
+        Future<CartaServicos> cartaServicos = cartaServicosController.get(_uid);
         cartaServicos.then((value) {
           Navigator.pushNamed(context, route, arguments: value);
         });
       } else {
         Navigator.pushNamed(context, route);
-      }
-    // }
+      // }
+    }
   }
 
   @override

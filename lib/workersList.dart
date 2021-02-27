@@ -33,6 +33,7 @@ class _WorkersListState extends State<WorkersList> {
 
   ServerIntegration _serverIntegration = ServerIntegration();
   List _suggestedTags;
+  Future<List<Map>> _workers;
 
   final _searchKey = GlobalKey<FormState>();
   final _searchController = TextEditingController();
@@ -40,15 +41,33 @@ class _WorkersListState extends State<WorkersList> {
 
   bool isLoggedIn = false;
   String _uid;
-
   @override
   void initState() {
     super.initState();
+
     auth.authChangeListener();
     if (auth.userIsLoggedIn()) {
       setState(() {
         isLoggedIn = true;
         _uid = auth.getUid();
+      });
+    }
+    _workers =  _usuarioController.getAllWorkers();
+  }
+
+  _addAutoFillText() {
+    if(_searchController.text.isEmpty) {
+      debugPrint('_searchController.text é nulo');
+    } else {
+      debugPrint('${this._searchController.text} foi adicionado.');
+      setState(() {
+        _suggestedTags.add(this._searchController.text);
+        _searchController.clear();
+      });
+      debugPrint('_suggestedTags contém: ');
+      _suggestedTags.sort();
+      _suggestedTags.forEach((tag) {
+        debugPrint(tag);
       });
     }
   }
@@ -57,9 +76,7 @@ class _WorkersListState extends State<WorkersList> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: OiaSidebar(),
-      bottomNavigationBar: OiaBottomBar(
-        uid: this._uid,
-      ),
+      bottomNavigationBar: OiaBottomBar(),
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
@@ -152,11 +169,9 @@ class _WorkersListState extends State<WorkersList> {
       print(this._suggestedTags);
     }
   }
-
   _buildFutureBuilder() {
     return FutureBuilder(
-        future: Future.delayed(
-            Duration(seconds: 4), _usuarioController.getAllWorkers),
+        future: _workers,
         builder: (context, snapshot) {
           if (snapshot.hasData ||
               snapshot.connectionState == ConnectionState.done) {
