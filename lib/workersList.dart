@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import './custom_widgets/oiaWidgets.dart';
 import './infrastructure/loginAuth.dart';
 import './infrastructure/database_integration.dart';
-import 'infrastructure/database_integration.dart';
-import 'infrastructure/constants.dart';
+import './infrastructure/constants.dart';
+import './infrastructure/server_integration.dart';
 
 class WorkersPage extends StatefulWidget {
   @override
@@ -30,6 +30,9 @@ class WorkersList extends StatefulWidget {
 class _WorkersListState extends State<WorkersList> {
   UsuarioController _usuarioController = UsuarioController();
   LoginAuth auth = Authentication.loginAuth;
+
+  ServerIntegration _serverIntegration = ServerIntegration();
+  List _suggestedTags;
 
   final _searchKey = GlobalKey<FormState>();
   final _searchController = TextEditingController();
@@ -135,13 +138,18 @@ class _WorkersListState extends State<WorkersList> {
     );
   }
 
-  _onSaveFields() {
+  _onSaveFields() async {
     if (_searchKey.currentState.validate()) {
       _searchKey.currentState.save();
       setState(() {
         _textOnSearch = _searchController.text;
       });
       _searchKey.currentState.reset();
+
+      Map clusterData =
+          await _serverIntegration.getSameClusterTags(tag: this._textOnSearch);
+      this._suggestedTags = clusterData['tags'];
+      print(this._suggestedTags);
     }
   }
 
