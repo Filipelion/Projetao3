@@ -1,10 +1,12 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocator/geolocator.dart';
 import './loginAuth.dart';
 import './usuario.dart';
 import 'cartaServico.dart';
+import './geolocation_integration.dart';
+import 'package:intl/intl.dart';
 
 class UsuarioController {
   CollectionReference _usuarios;
@@ -13,8 +15,13 @@ class UsuarioController {
     this._usuarios = FirebaseFirestore.instance.collection("Usuario");
   }
 
-  Future<DocumentSnapshot> getUsuarioByID(String id) {
-    return this._usuarios.doc(id).get();
+  Future<DocumentReference> getDocumentReference(String id) async {
+    return this._usuarios.doc(id);
+  }
+
+  Future<DocumentSnapshot> getUsuarioByID(String id) async {
+    DocumentReference reference = await this.getDocumentReference(id);
+    return reference.get();
   }
 
   Future<Usuario> getUsuarioData(String id) async {
@@ -57,11 +64,23 @@ class UsuarioController {
   void saveUsuario(Usuario usuario) async {
     String uid = usuario.uid;
     Map usuarioData = usuario.toJson();
+    usuarioData['visto_ultimo'] = this.setVistoUltimo();
+    usuarioData['localizacao'] = await this.updateGeolocation(uid);
+
     _usuarios.doc(uid).set(usuarioData);
   }
 
   removeUsuario(String id) async {
     return await _usuarios.doc(id).delete();
+  }
+
+  String setVistoUltimo() {
+    // Atualizando o horário
+    DateTime now = DateTime.now();
+    final formatter = DateFormat('dd/MM/yyyy');
+    String today = formatter.format(now);
+
+    return today;
   }
 
   Future<CartaServicos> getUsuarioCartaServicos(String id) async {
@@ -75,6 +94,14 @@ class UsuarioController {
     } catch (e) {
       return CartaServicos(id: id, cartaServicos: {});
     }
+  }
+
+  Future<Map> updateGeolocation(String uid) async {
+    final geolocation = GeolocationIntegration();
+    Position position = await geolocation.getCurrentLocation();
+
+    Map<String, dynamic> localizacaoData = position.toJson();
+    return localizacaoData;
   }
 }
 

@@ -5,6 +5,12 @@
          In most cases you can leave this as-is, but you if you want to provide
          additional functionality it is fine to subclass or reimplement
          FlutterApplication and put your custom class here. -->
+    
+    <!-- ACCESS LOCATION PERMISSIONS -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="projetao3"
@@ -68,4 +74,7 @@
                android:value="AIzaSyAeY4QCGtmfpbtwN4QQGgaA3FUc1QZ8wbM"/>
 
     </application>
+
+    
+
 </manifest>

@@ -50,13 +50,14 @@ class _WorkersListState extends State<WorkersList> {
       setState(() {
         isLoggedIn = true;
         _uid = auth.getUid();
+        // _usuarioController.updateGeolocation(_uid);
       });
     }
-    _workers =  _usuarioController.getAllWorkers();
+    _workers = _usuarioController.getAllWorkers();
   }
 
   _addAutoFillText() {
-    if(_searchController.text.isEmpty) {
+    if (_searchController.text.isEmpty) {
       debugPrint('_searchController.text é nulo');
     } else {
       debugPrint('${this._searchController.text} foi adicionado.');
@@ -169,6 +170,7 @@ class _WorkersListState extends State<WorkersList> {
       print(this._suggestedTags);
     }
   }
+
   _buildFutureBuilder() {
     return FutureBuilder(
         future: _workers,
