@@ -4,7 +4,6 @@ import '../infrastructure/constants.dart';
 import '../infrastructure/database_integration.dart';
 import '../infrastructure/loginAuth.dart';
 
-
 class OiaScaffold extends StatefulWidget {
   final String appBarTitle;
   final Widget body;
@@ -50,13 +49,10 @@ class _OiaScaffoldState extends State<OiaScaffold> {
         padding: EdgeInsets.symmetric(horizontal: Constants.largeSpace),
       ),
       drawer: OiaSidebar(),
-      bottomNavigationBar: widget.showBottomBar && _isLoggedIn
-          ? OiaBottomBar()
-          : null,
+      bottomNavigationBar:
+          widget.showBottomBar && _isLoggedIn ? OiaBottomBar() : null,
     );
   }
-
-  
 }
 
 class OiaSidebar extends StatefulWidget {
@@ -126,7 +122,7 @@ class _OiaSidebarState extends State<OiaSidebar> {
                 textAlign: TextAlign.center,
               ),
               Constants.SMALL_HEIGHT_BOX,
-              FlatButton(
+              TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/login');
                 },
@@ -134,7 +130,9 @@ class _OiaSidebarState extends State<OiaSidebar> {
                   "Fazer login",
                   style: TextStyle(color: Colors.white),
                 ),
-                color: Constants.COR_VINHO,
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Constants.COR_VINHO)),
               )
             ]),
       ),
@@ -194,13 +192,16 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _auth.authChangeListener();
     if (_auth.userIsLoggedIn()) {
       setState(() {
         _uid = _auth.getUid();
         _isLoggedIn = true;
+      });
+    } else {
+      setState(() {
+        _isLoggedIn = false;
       });
     }
   }
@@ -212,14 +213,7 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
 
     String route = _routes[index];
 
-    // Indo para a próxima tela
-
-    // Se o usuário não estiver logado ele será direcionado para a tela de login
-    // if (_isLoggedIn) {
-    //   Navigator.pushNamed(context, '/login');
-    // } else {
-      // Se o usuário clicar no botão de perfil, será gerada sua Carta de Serviço antes
-      // dele poder acessar essa rota.
+    try {
       if (index == 2) {
         final cartaServicosController = CartaServicosController();
         Future<CartaServicos> cartaServicos = cartaServicosController.get(_uid);
@@ -228,7 +222,11 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
         });
       } else {
         Navigator.pushNamed(context, route);
-      // }
+      }
+    } catch (e) {
+      print(
+          "Não foi possível acessar a tela seguinte pois o usuário não está logado: $e");
+      Navigator.pushNamed(context, '/login');
     }
   }
 
@@ -333,12 +331,20 @@ class OiaListTile extends StatelessWidget {
   final String title, subtitle;
   final Function onTap;
 
-  const OiaListTile({Key key, this.title, this.subtitle, this.onTap}) : super(key: key);
+  const OiaListTile({Key key, this.title, this.subtitle, this.onTap})
+      : super(key: key);
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      tileColor: Colors.white54, title: Text(this.title, style: TextStyle(fontWeight: FontWeight.bold),), 
-      subtitle: Text(this.subtitle, style: TextStyle(fontSize: Constants.smallFontSize),),
+      tileColor: Colors.white54,
+      title: Text(
+        this.title,
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(
+        this.subtitle,
+        style: TextStyle(fontSize: Constants.smallFontSize),
+      ),
       onTap: this.onTap,
     );
   }

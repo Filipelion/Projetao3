@@ -51,6 +51,10 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
   @override
   Widget build(BuildContext context) {
+    return _buildBody();
+  }
+
+  _buildBody() {
     return OiaScaffold(
       appBarTitle: auth.getUserProfileName(),
       body: SafeArea(
@@ -99,7 +103,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
                           setState(() {
                             _controller.clear();
-                            this._tags = retorno['tags'];                            
+                            this._tags = retorno['tags'];
                           });
 
                           _buildModalBottomSheet(context);
@@ -231,7 +235,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                                 servicosUsuario.add(item.title);
                                 _cartaServicos.save(item.title, {});
                                 _wasAddedNewServico = true;
-
                               });
                             },
                             onLongPressed: (item) => print(item),

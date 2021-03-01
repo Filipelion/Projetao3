@@ -5,6 +5,7 @@ import 'package:Projetao3/infrastructure/cartaServico.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'custom_widgets/oiaWidgets.dart';
+import 'infrastructure/cartaServico.dart';
 import 'infrastructure/constants.dart';
 import 'infrastructure/loginAuth.dart';
 import './infrastructure/database_integration.dart';
@@ -37,7 +38,8 @@ class _ProfileState extends State<Profile> {
     super.initState();
     auth = Authentication.loginAuth;
     auth.authChangeListener();
-    _controllerNome = TextEditingController(text: auth.getUserProfileName());
+    String controllerText = !isLoggedIn ? "" : auth.getUserProfileName();
+    _controllerNome = TextEditingController(text: controllerText);
     if (auth.userIsLoggedIn()) {
       setState(() {
         isLoggedIn = true;
@@ -67,17 +69,8 @@ class _ProfileState extends State<Profile> {
     }
   }
 
-  _getCartaServicos() async {
-    String uid = auth.getUid();
-    if (_usuarioController.usuarioIsInDatabase(uid)) {
-      var cartaServicos = await _usuarioController.getUsuarioCartaServicos(uid);
-      return cartaServicos;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    
     return OiaScaffold(
       appBarTitle: "Perfil",
       body: isLoggedIn
@@ -88,6 +81,14 @@ class _ProfileState extends State<Profile> {
   }
 
   _buildBody(context) {
+    if (!isLoggedIn) {
+      return _buildRedirectToLogin();
+    } else {
+      return _buildProfilePage();
+    }
+  }
+
+  _buildProfilePage() {
     _cartaServicos = ModalRoute.of(context).settings.arguments;
     List _categorias = _cartaServicos.tipos();
 
@@ -189,6 +190,33 @@ class _ProfileState extends State<Profile> {
           ),
         ],
       ),
+    );
+  }
+
+  _buildRedirectToLogin() {
+    return Center(
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Faça login para ter acesso a todas as funcionalidades do aplicativo",
+              textAlign: TextAlign.center,
+            ),
+            Constants.SMALL_HEIGHT_BOX,
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/login');
+              },
+              child: Text(
+                "Fazer login",
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Constants.COR_VINHO)),
+            )
+          ]),
     );
   }
 }

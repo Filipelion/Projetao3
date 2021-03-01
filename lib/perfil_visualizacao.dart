@@ -60,7 +60,7 @@ class _WorkerProfileState extends State<WorkerProfile> {
                 return _buildBody();
                 break;
               case ConnectionState.none:
-                Scaffold.of(context).showSnackBar(SnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text("Não foi possível recuperar as imagens...")));
                 return Container();
                 break;
@@ -140,7 +140,7 @@ class _WorkerProfileState extends State<WorkerProfile> {
           OiaLargeButton(
             title: "Encontrar no mapa",
             onPressed: () {
-              Navigator.pushNamed(context, '/map');
+              Navigator.pushNamed(context, '/map', arguments: _uid);
             },
           ),
           // TODO: Implementar tela de salvar contato

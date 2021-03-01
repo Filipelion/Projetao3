@@ -4,6 +4,7 @@ import './infrastructure/loginAuth.dart';
 import './infrastructure/database_integration.dart';
 import './infrastructure/constants.dart';
 import './infrastructure/server_integration.dart';
+import 'infrastructure/constants.dart';
 
 class WorkersPage extends StatefulWidget {
   @override
@@ -50,27 +51,24 @@ class _WorkersListState extends State<WorkersList> {
       setState(() {
         isLoggedIn = true;
         _uid = auth.getUid();
-        // _usuarioController.updateGeolocation(_uid);
+        this._updateLocationAndLastSeen();
       });
     }
-    _workers = _usuarioController.getAllWorkers();
+    _workers = _usuarioController.getAllWorkers(_textOnSearch);
   }
 
-  _addAutoFillText() {
-    if (_searchController.text.isEmpty) {
-      debugPrint('_searchController.text é nulo');
-    } else {
-      debugPrint('${this._searchController.text} foi adicionado.');
-      setState(() {
-        _suggestedTags.add(this._searchController.text);
-        _searchController.clear();
-      });
-      debugPrint('_suggestedTags contém: ');
-      _suggestedTags.sort();
-      _suggestedTags.forEach((tag) {
-        debugPrint(tag);
-      });
-    }
+  Future<void> _updateLocationAndLastSeen() async {
+    String vistoUltimo = _usuarioController.setVistoUltimo();
+    Map localizacao =
+        await _usuarioController.updateCurrentGeolocation(this._uid);
+
+    Map<String, dynamic> data = {
+      'visto_ultimo': vistoUltimo,
+      'localizacao': localizacao,
+    };
+
+    _usuarioController.update(this._uid, data);
+    print("Posição atualizada com sucesso!");
   }
 
   @override
@@ -92,65 +90,69 @@ class _WorkersListState extends State<WorkersList> {
       backgroundColor: Constants.COR_MOSTARDA,
       iconTheme: IconThemeData(color: Colors.black),
       floating: true,
-      expandedHeight: 200,
-      flexibleSpace: Container(
-        margin: EdgeInsets.only(
-            top: Constants.mediumSpace, bottom: Constants.largeSpace),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Constants.mediumSpace),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Image.asset(
-                    "assets/icons/satellite_icon.png",
-                    width: 50,
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.4,
-                    child: Text(
-                      "Encontre\nprofissionais",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: Constants.regularFontSize),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Constants.LARGE_HEIGHT_BOX,
-            Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Form(
-                key: _searchKey,
+      expandedHeight: 260,
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          margin: EdgeInsets.only(
+              top: Constants.mediumSpace, bottom: Constants.largeSpace),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: Constants.mediumSpace),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Flexible(
-                      child: TextFormField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          focusColor: Colors.white,
-                          hoverColor: Colors.white,
-                          hintText: "Buscar...",
-                          prefixIcon: Icon(Icons.search),
-                          isDense: true,
-                          fillColor: Colors.white,
-                        ),
-                        validator: (value) {
-                          if (value.isEmpty)
-                            return "Insira o nome da profissão";
-                        },
-                      ),
+                    Image.asset(
+                      "assets/icons/satellite_icon.png",
+                      width: 50,
                     ),
-                    Constants.SMALL_WIDTH_BOX,
-                    IconButton(icon: Icon(Icons.send), onPressed: _onSaveFields)
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      child: Text(
+                        "Encontre\nprofissionais",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: Constants.regularFontSize),
+                      ),
+                    )
                   ],
                 ),
               ),
-            ),
-          ],
+              Constants.LARGE_HEIGHT_BOX,
+              Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: Form(
+                  key: _searchKey,
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: TextFormField(
+                          controller: _searchController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            focusColor: Colors.white,
+                            hoverColor: Colors.white,
+                            hintText: "Buscar...",
+                            prefixIcon: Icon(Icons.search),
+                            isDense: true,
+                            fillColor: Colors.white,
+                          ),
+                          validator: (value) {
+                            if (value.isEmpty)
+                              return "Insira o nome da profissão";
+                          },
+                        ),
+                      ),
+                      Constants.SMALL_WIDTH_BOX,
+                      IconButton(
+                          icon: Icon(Icons.send), onPressed: _onSaveFields)
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -161,6 +163,7 @@ class _WorkersListState extends State<WorkersList> {
       _searchKey.currentState.save();
       setState(() {
         _textOnSearch = _searchController.text;
+        _workers = _usuarioController.getAllWorkers(_textOnSearch);
       });
       _searchKey.currentState.reset();
 
@@ -177,17 +180,28 @@ class _WorkersListState extends State<WorkersList> {
         builder: (context, snapshot) {
           if (snapshot.hasData ||
               snapshot.connectionState == ConnectionState.done) {
-            return _buildSliverList(snapshot.data);
+            print(snapshot.data);
+            return snapshot.data == []
+                ? Center(
+                    child: Text(
+                      "Resultados não encontrados",
+                      style: TextStyle(fontSize: Constants.mediumFontSize),
+                    ),
+                  )
+                : _buildSliverList(snapshot.data);
           } else if (snapshot.hasError) {
-            Scaffold.of(context).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text("Não foi possível acessar o app."),
             ));
             return SliverToBoxAdapter(child: Container());
           }
 
           return SliverToBoxAdapter(
-            child: Center(
-              child: CircularProgressIndicator(),
+            child: Column(
+              children: [
+                Constants.LARGE_HEIGHT_BOX,
+                Center(child: CircularProgressIndicator()),
+              ],
             ),
           );
         });

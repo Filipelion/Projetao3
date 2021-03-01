@@ -51,7 +51,7 @@ class _LoginState extends State<Login> {
 class LoginPage extends StatefulWidget {
   final FirebaseAuth firebaseAuth;
   const LoginPage({Key key, this.firebaseAuth}) : super(key: key);
-  
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -68,37 +68,34 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _googleSignIn() {
-
     auth.signInWithGoogle().then((value) {
-        if(value != null) {
-          String id = value.uid;
-          _showLoadingSnackbar();
-          _goToNextPage(id);
-        } else {
-          _showErrorSnackbar();
-        }
+      if (value != null) {
+        String id = value.uid;
+        _showLoadingSnackbar();
+        _goToNextPage(id);
+      } else {
+        _showErrorSnackbar();
+      }
     });
   }
 
   void _facebookSignIn() {
     auth.signInWithFacebook().then((value) {
-      if(value != null) {
-          String id = value.uid;
-          _showLoadingSnackbar();
-          _goToNextPage(id);
-          
-        } else {
-          _showErrorSnackbar();
-        }
+      if (value != null) {
+        String id = value.uid;
+        _showLoadingSnackbar();
+        _goToNextPage(id);
+      } else {
+        _showErrorSnackbar();
+      }
     });
   }
 
   _goToNextPage(String id) async {
     debugPrint("goToNextPage was called");
-    if(await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id)) {
+    if (await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id)) {
       Navigator.popAndPushNamed(context, '/workers');
-    }
-    else {
+    } else {
       Navigator.popAndPushNamed(context, '/service_registration');
     }
   }
@@ -147,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   width: screen.width * 0.8,
                   height: Constants.extraLargeSpace,
-                  child: RaisedButton(
+                  child: ElevatedButton(
                     // TODO: ADICIONAR A LOGO DO GOOGLE PARA ESTE BOTÃO
                     child: Text(
                       "Login com Google",
@@ -156,14 +153,16 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: Constants.smallFontSize),
                     ),
                     onPressed: _googleSignIn,
-                    color: Colors.black,
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.black)),
                   ),
                 ),
                 Constants.SMALL_HEIGHT_BOX,
                 Container(
                   width: screen.width * 0.8,
                   height: Constants.extraLargeSpace,
-                  child: RaisedButton(
+                  child: ElevatedButton(
                     // TODO: ADICIONAR A LOGO DO FACEBOOK PARA ESTE BOTÃO
                     child: Text(
                       "Login com Facebook",

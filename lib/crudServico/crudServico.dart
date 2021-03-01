@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../custom_widgets/oiaWidgets.dart';
 import '../infrastructure/cartaServico.dart';
-import '../infrastructure/database_integration.dart';
 import '../infrastructure/imageProvider.dart';
 import '../infrastructure/loginAuth.dart';
 
@@ -19,7 +18,6 @@ class _CrudServicoState extends State<CrudServico> {
   Future<List> _imagens;
   List _imagensURL = [];
   LoginAuth auth = Authentication.loginAuth;
-  CartaServicosController _cartaServicosController = CartaServicosController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -36,10 +34,6 @@ class _CrudServicoState extends State<CrudServico> {
       Duration(seconds: 4),
       () => imageProvider.getAllImagesOfAService(uid, _tipo),
     );
-
-    // Servico _servico = _cartaServicos.getServico(_tipo);
-    // String valorMedio = _servico.valorMedio.toString();
-    // String descricao = _servico.descricao;
   }
 
   _onSaveFields() {
@@ -172,7 +166,7 @@ class _CrudServicoState extends State<CrudServico> {
                             return _buildGridView();
                             break;
                           case ConnectionState.none:
-                            Scaffold.of(context).showSnackBar(SnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text(
                                     "Não foi possível recuperar as imagens...")));
                             return null;

@@ -1,4 +1,5 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class GeolocationIntegration {
   Future<Position> getCurrentLocation() async {
@@ -33,16 +34,15 @@ class GeolocationIntegration {
     return position;
   }
 
-  String calculateDistanceInKm(double startLatitude, double startLongitude,
-      double endLatitude, double endLongitude) {
-    double distanceInMeters = Geolocator.bearingBetween(
-      startLatitude,
-      startLongitude,
-      endLatitude,
-      endLongitude,
+  String calculateDistanceInKm(LatLng start, LatLng destine) {
+    double distanceInMeters = Geolocator.distanceBetween(
+      start.latitude,
+      start.longitude,
+      destine.latitude,
+      destine.longitude,
     );
     double convertToKm = distanceInMeters / 1000;
 
-    return convertToKm.toStringAsFixed(1);
+    return convertToKm.abs().toStringAsFixed(1);
   }
 }

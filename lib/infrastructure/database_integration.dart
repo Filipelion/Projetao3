@@ -15,19 +15,19 @@ class UsuarioController {
     this._usuarios = FirebaseFirestore.instance.collection("Usuario");
   }
 
-  Future<DocumentReference> getDocumentReference(String id) async {
+  Future<DocumentReference> _getDocumentReference(String id) async {
     return this._usuarios.doc(id);
   }
 
-  Future<DocumentSnapshot> getUsuarioByID(String id) async {
-    DocumentReference reference = await this.getDocumentReference(id);
+  Future<DocumentSnapshot> _getUsuarioByID(String id) async {
+    DocumentReference reference = await this._getDocumentReference(id);
     return reference.get();
   }
 
   Future<Usuario> getUsuarioData(String id) async {
     try {
       // Tentando recuperar os dados do usuário do banco de dados
-      DocumentSnapshot snapshot = await this.getUsuarioByID(id);
+      DocumentSnapshot snapshot = await this._getUsuarioByID(id);
       Map usuarioData = snapshot.data();
       Usuario usuario = Usuario.fromJson(usuarioData);
       return usuario;
@@ -40,16 +40,22 @@ class UsuarioController {
     }
   }
 
-  FutureOr<List<Map>> getAllWorkers() async {
+  FutureOr<List<Map>> getAllWorkers(String tag) async {
     QuerySnapshot snapshot = await _usuarios.get();
-    return snapshot.docs.map((document) {
-      Map<String, dynamic> workerData = document.data();
-      return workerData;
-    }).toList();
+    List<Map> workers = [];
+
+    for (var worker in snapshot.docs) {
+      Map<String, dynamic> workerData = worker.data();
+      DocumentReference ref = workerData["servicos"];
+      DocumentSnapshot servicos = await ref.get();
+      if (servicos.data().keys.contains(tag)) workers.add(workerData);
+    }
+
+    return workers;
   }
 
   FutureOr<bool> usuarioIsInDatabase(String id) async {
-    DocumentSnapshot documentSnapshot = await this.getUsuarioByID(id);
+    DocumentSnapshot documentSnapshot = await this._getUsuarioByID(id);
     try {
       return documentSnapshot.exists;
     } catch (e) {
@@ -57,15 +63,11 @@ class UsuarioController {
     }
   }
 
-  Stream<QuerySnapshot> getUsuarioSnapshots() {
-    return this._usuarios.snapshots();
-  }
-
   void saveUsuario(Usuario usuario) async {
     String uid = usuario.uid;
     Map usuarioData = usuario.toJson();
     usuarioData['visto_ultimo'] = this.setVistoUltimo();
-    usuarioData['localizacao'] = await this.updateGeolocation(uid);
+    usuarioData['localizacao'] = await this.updateCurrentGeolocation(uid);
 
     _usuarios.doc(uid).set(usuarioData);
   }
@@ -96,12 +98,22 @@ class UsuarioController {
     }
   }
 
-  Future<Map> updateGeolocation(String uid) async {
+  Future<Map> updateCurrentGeolocation(String uid) async {
     final geolocation = GeolocationIntegration();
     Position position = await geolocation.getCurrentLocation();
 
     Map<String, dynamic> localizacaoData = position.toJson();
     return localizacaoData;
+  }
+
+  Future<Position> getUsuarioLocation(String id) async {
+    Usuario usuario = await this.getUsuarioData(id);
+    return Position.fromMap(usuario.localizacao);
+  }
+
+  Future<void> update(String uid, Map<String, dynamic> data) async {
+    DocumentReference ref = await this._getDocumentReference(uid);
+    ref.update(data);
   }
 }
 
