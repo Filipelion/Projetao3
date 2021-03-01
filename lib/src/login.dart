@@ -1,6 +1,5 @@
 import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:Projetao3/infrastructure/database_integration.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +51,7 @@ class _LoginState extends State<Login> {
 class LoginPage extends StatefulWidget {
   final FirebaseAuth firebaseAuth;
   const LoginPage({Key key, this.firebaseAuth}) : super(key: key);
-  
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -69,33 +68,36 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _googleSignIn() {
-
     auth.signInWithGoogle().then((value) {
-        if(value != null) {
-          _showLoadingSnackbar();
-          _goToWorkersPage();
-        } else {
-          _showErrorSnackbar();
-        }
-        print(value.toString());
+      if (value != null) {
+        String id = value.uid;
+        _showLoadingSnackbar();
+        _goToNextPage(id);
+      } else {
+        _showErrorSnackbar();
+      }
     });
   }
 
   void _facebookSignIn() {
     auth.signInWithFacebook().then((value) {
-      if(value != null) {
-          print(value.toString());
-          _showLoadingSnackbar();
-          _goToWorkersPage();
-          
-        } else {
-          _showErrorSnackbar();
-        }
+      if (value != null) {
+        String id = value.uid;
+        _showLoadingSnackbar();
+        _goToNextPage(id);
+      } else {
+        _showErrorSnackbar();
+      }
     });
   }
 
-  _goToWorkersPage() {
-    Navigator.popAndPushNamed(context, '/workers');
+  _goToNextPage(String id) async {
+    debugPrint("goToNextPage was called");
+    if (await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id)) {
+      Navigator.popAndPushNamed(context, '/workers');
+    } else {
+      Navigator.popAndPushNamed(context, '/service_registration');
+    }
   }
 
   _showLoadingSnackbar() {
@@ -142,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   width: screen.width * 0.8,
                   height: Constants.extraLargeSpace,
-                  child: RaisedButton(
+                  child: ElevatedButton(
                     // TODO: ADICIONAR A LOGO DO GOOGLE PARA ESTE BOTÃO
                     child: Text(
                       "Login com Google",
@@ -151,14 +153,16 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: Constants.smallFontSize),
                     ),
                     onPressed: _googleSignIn,
-                    color: Colors.black,
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.black)),
                   ),
                 ),
                 Constants.SMALL_HEIGHT_BOX,
                 Container(
                   width: screen.width * 0.8,
                   height: Constants.extraLargeSpace,
-                  child: RaisedButton(
+                  child: ElevatedButton(
                     // TODO: ADICIONAR A LOGO DO FACEBOOK PARA ESTE BOTÃO
                     child: Text(
                       "Login com Facebook",
