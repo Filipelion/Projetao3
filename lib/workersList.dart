@@ -53,6 +53,10 @@ class _WorkersListState extends State<WorkersList> {
         _uid = auth.getUid();
         this._updateLocationAndLastSeen();
       });
+    } else {
+      setState(() {
+        isLoggedIn = false;
+      });
     }
     _workers = _usuarioController.getAllWorkers(_textOnSearch);
   }
@@ -75,7 +79,12 @@ class _WorkersListState extends State<WorkersList> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: OiaSidebar(),
-      bottomNavigationBar: OiaBottomBar(),
+      bottomNavigationBar: isLoggedIn
+          ? OiaBottomBar()
+          : Container(
+              height: 0,
+              width: 0,
+            ),
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
