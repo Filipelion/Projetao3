@@ -1,16 +1,20 @@
-import 'package:Projetao3/infrastructure/constants.dart';
-import 'package:Projetao3/profile.dart';
-import 'package:Projetao3/workersList.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:splashscreen/splashscreen.dart';
 import 'serviceRegistragion.dart';
 import 'src/login.dart';
 import 'src/register.dart';
 import 'src/registerPhoto.dart';
-import 'workersList.dart';
-//import 'src/perfilShift.dart';
+import './workersList.dart';
+import './crudServico/crudServico.dart';
+import './perfil_visualizacao.dart';
+import './profile.dart';
+import './map.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -30,38 +34,9 @@ class MyApp extends StatelessWidget {
       '/workers': (context) => WorkersPage(),
       '/service_registration': (context) => ServiceRegistration(),
       '/profile': (context) => Profile(),
+      '/servico': (context) => CrudServico(),
+      '/worker_info': (context) => WorkerProfile(),
+      '/map' : (context) => MapScreen(),
     };
-  }
-}
-
-class Splash extends StatefulWidget {
-  @override
-  _SplashState createState() => _SplashState();
-}
-
-class _SplashState extends State<Splash> {
-  // TODO: Importar o Firebase App no Material App
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Stack(
-        children: [
-          SplashScreen(
-            seconds: 4,
-            navigateAfterSeconds: WorkersPage(),
-            loaderColor: Colors.transparent,
-          ),
-          Scaffold(
-            backgroundColor: Constants.COR_MOSTARDA,
-            body: Center(
-              child: Image.asset(
-                'assets/icons/logo.png',
-                width: 100,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

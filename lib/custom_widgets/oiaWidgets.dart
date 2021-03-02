@@ -1,68 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import '../infrastructure/cartaServico.dart';
 import '../infrastructure/constants.dart';
-import '../infrastructure/constants.dart';
+import '../infrastructure/database_integration.dart';
 import '../infrastructure/loginAuth.dart';
-
-class OiaFlexibleAppbar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SliverAppBar(
-      backgroundColor: Constants.COR_MOSTARDA,
-      iconTheme: IconThemeData(color: Colors.black),
-      floating: true,
-      expandedHeight: 200,
-      flexibleSpace: Container(
-        margin: EdgeInsets.only(
-            top: Constants.mediumSpace, bottom: Constants.largeSpace),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Constants.mediumSpace),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Image.asset(
-                    "assets/icons/satellite_icon.png",
-                    width: 50,
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.4,
-                    child: Text(
-                      "Encontre\nprofissionais",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: Constants.regularFontSize),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Constants.MEDIUM_HEIGHT_BOX,
-            Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    focusColor: Colors.white,
-                    hoverColor: Colors.white,
-                    hintText: "Buscar...",
-                    prefixIcon: Icon(Icons.search),
-                    fillColor: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class OiaScaffold extends StatefulWidget {
   final String appBarTitle;
   final Widget body;
   final bool showBottomBar;
+
   const OiaScaffold(
       {Key key, this.appBarTitle, this.body, this.showBottomBar = false})
       : super(key: key);
@@ -72,11 +18,19 @@ class OiaScaffold extends StatefulWidget {
 
 class _OiaScaffoldState extends State<OiaScaffold> {
   LoginAuth auth = Authentication.loginAuth;
+  bool _isLoggedIn = false;
+  String uid;
 
   @override
   void initState() {
     super.initState();
     auth.authChangeListener();
+    if (auth.userIsLoggedIn()) {
+      setState(() {
+        _isLoggedIn = true;
+        uid = auth.getUid();
+      });
+    }
   }
 
   @override
@@ -90,9 +44,13 @@ class _OiaScaffoldState extends State<OiaScaffold> {
         ),
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: Container(child: widget.body, padding: EdgeInsets.symmetric(horizontal: Constants.largeSpace),),
+      body: Container(
+        child: widget.body,
+        padding: EdgeInsets.symmetric(horizontal: Constants.largeSpace),
+      ),
       drawer: OiaSidebar(),
-      bottomNavigationBar: widget.showBottomBar ? OiaBottomBar() : null,
+      bottomNavigationBar:
+          widget.showBottomBar && _isLoggedIn ? OiaBottomBar() : null,
     );
   }
 }
@@ -164,7 +122,7 @@ class _OiaSidebarState extends State<OiaSidebar> {
                 textAlign: TextAlign.center,
               ),
               Constants.SMALL_HEIGHT_BOX,
-              FlatButton(
+              TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/login');
                 },
@@ -172,7 +130,9 @@ class _OiaSidebarState extends State<OiaSidebar> {
                   "Fazer login",
                   style: TextStyle(color: Colors.white),
                 ),
-                color: Constants.COR_VINHO,
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Constants.COR_VINHO)),
               )
             ]),
       ),
@@ -186,7 +146,10 @@ class OiaSidebarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider userProfilePicture = NetworkImage(auth.getUserProfilePhoto(), scale: 1.5,);
+    ImageProvider userProfilePicture = NetworkImage(
+      auth.getUserProfilePhoto(),
+      scale: 1.5,
+    );
     String userName = auth.getUserProfileName() ?? "Usuário Anônimo";
     String userEmail = auth.getUserEmail() ?? "-";
 
@@ -223,6 +186,25 @@ class OiaBottomBar extends StatefulWidget {
 class _OiaBottomBarState extends State<OiaBottomBar> {
   List _routes = ['/workers', '/service_registration', '/profile'];
   int _currentIndex = 0;
+  LoginAuth _auth = Authentication.loginAuth;
+  bool _isLoggedIn = false;
+  String _uid;
+
+  @override
+  void initState() {
+    super.initState();
+    _auth.authChangeListener();
+    if (_auth.userIsLoggedIn()) {
+      setState(() {
+        _uid = _auth.getUid();
+        _isLoggedIn = true;
+      });
+    } else {
+      setState(() {
+        _isLoggedIn = false;
+      });
+    }
+  }
 
   void _navigateToRoute(int index) {
     setState(() {
@@ -230,12 +212,21 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
     });
 
     String route = _routes[index];
-    // Indo para a próxima tela
-    if(index == 2) {
-      // TODO: Recuperar os serviços de um usuário e passar em uma lista para a tela de perfil.
-      Navigator.pushNamed(context, route, arguments: ["teste"]);   
-    } else {
-      Navigator.pushNamed(context, route);
+
+    try {
+      if (index == 2) {
+        final cartaServicosController = CartaServicosController();
+        Future<CartaServicos> cartaServicos = cartaServicosController.get(_uid);
+        cartaServicos.then((value) {
+          Navigator.pushNamed(context, route, arguments: value);
+        });
+      } else {
+        Navigator.pushNamed(context, route);
+      }
+    } catch (e) {
+      print(
+          "Não foi possível acessar a tela seguinte pois o usuário não está logado: $e");
+      Navigator.pushNamed(context, '/login');
     }
   }
 
@@ -246,7 +237,8 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
         backgroundColor: Constants.COR_MOSTARDA,
         currentIndex: _currentIndex,
         selectedIconTheme: IconThemeData(color: Constants.COR_VINHO),
-        selectedLabelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        selectedLabelStyle:
+            TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         onTap: _navigateToRoute,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
@@ -257,10 +249,10 @@ class _OiaBottomBarState extends State<OiaBottomBar> {
 }
 
 class OiaLargeButton extends StatelessWidget {
-  String title;
-  Function onPressed;
+  final String title;
+  final Function onPressed;
 
-  OiaLargeButton({this.title, this.onPressed});
+  const OiaLargeButton({this.title, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -280,18 +272,18 @@ class OiaLargeButton extends StatelessWidget {
 }
 
 class OiaRoundedImage extends StatelessWidget {
-  double width, height, borderWidth;
-  ImageProvider image;
-  Color color;
+  final double width, height, borderWidth;
+  final ImageProvider image;
+  final Color color;
 
-  OiaRoundedImage({
-    Key key,
-    this.width,
-    this.height,
-    this.borderWidth,
-    this.image,
-    this.color = Constants.COR_MOSTARDA
-  }) : super(key: key);
+  const OiaRoundedImage(
+      {Key key,
+      this.width,
+      this.height,
+      this.borderWidth,
+      this.image,
+      this.color = Constants.COR_MOSTARDA})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -321,7 +313,38 @@ class OiaClickableCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: Card(child: Center(child: Text(this.title),), color: Colors.yellow[200],),
+      child: Card(
+        child: Center(
+          child: Text(
+            this.title,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        color: Colors.yellow[200],
+      ),
+      onTap: this.onTap,
+    );
+  }
+}
+
+class OiaListTile extends StatelessWidget {
+  final String title, subtitle;
+  final Function onTap;
+
+  const OiaListTile({Key key, this.title, this.subtitle, this.onTap})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      tileColor: Colors.white54,
+      title: Text(
+        this.title,
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(
+        this.subtitle,
+        style: TextStyle(fontSize: Constants.smallFontSize),
+      ),
       onTap: this.onTap,
     );
   }
