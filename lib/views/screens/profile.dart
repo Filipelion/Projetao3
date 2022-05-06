@@ -1,15 +1,18 @@
 import 'dart:async';
 
-import 'package:Projetao3/crudServico/crudServicosArgs.dart';
-import 'package:Projetao3/infrastructure/cartaServico.dart';
+import 'package:Projetao3/models/crudServicosArgs.dart';
+import 'package:Projetao3/models/cartaServico.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'custom_widgets/oiaWidgets.dart';
-import 'infrastructure/cartaServico.dart';
-import 'infrastructure/constants.dart';
-import 'infrastructure/loginAuth.dart';
-import './infrastructure/database_integration.dart';
-import './infrastructure/usuario.dart';
+import 'package:Projetao3/views/components/button_component.dart';
+import 'package:Projetao3/views/components/card_component.dart';
+import 'package:Projetao3/views/screens/base_screen.dart';
+import '../../custom_widgets/oiaWidgets.dart';
+import '../../models/cartaServico.dart';
+import '../shared/constants.dart';
+import '../../services/login_service.dart';
+import '../../services/firestore_service.dart';
+import '../../infrastructure/usuario.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -17,7 +20,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  LoginAuth auth;
+  LoginService auth;
   bool isLoggedIn = true;
   TextEditingController _controllerNome;
   final _formKey = GlobalKey<FormState>();
@@ -28,7 +31,7 @@ class _ProfileState extends State<Profile> {
 
   // Dados do usuario
   final _usuarioController = DatabaseIntegration.usuarioController;
-  final _cartaServicosController = DatabaseIntegration.cartaServicosController;
+  final _cartaServicosController = DatabaseIntegration._skillsRepository;
 
   FutureOr<Usuario> _usuario;
   CartaServicos _cartaServicos;
@@ -36,7 +39,7 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    auth = Authentication.loginAuth;
+    auth = locator<LoginService>();
     auth.authChangeListener();
     String controllerText = !isLoggedIn ? "" : auth.getUserProfileName();
     _controllerNome = TextEditingController(text: controllerText);
@@ -71,7 +74,7 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return OiaScaffold(
+    return BaseScreen(
       appBarTitle: "Perfil",
       body: isLoggedIn
           ? _buildBody(context)
@@ -169,7 +172,7 @@ class _ProfileState extends State<Profile> {
                     children: List.generate(_categorias.length, (index) {
                       String tipo = _categorias[index];
 
-                      return OiaClickableCard(
+                      return CardComponent(
                         title: tipo,
                         onTap: () {
                           CrudServicoArgs args = CrudServicoArgs(
@@ -181,7 +184,7 @@ class _ProfileState extends State<Profile> {
                     })),
               ),
               Constants.SMALL_HEIGHT_BOX,
-              OiaLargeButton(
+              ButtonComponent(
                 title: "Salvar",
                 onPressed: _onSaveFields,
               ),

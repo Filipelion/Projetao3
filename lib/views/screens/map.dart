@@ -3,11 +3,13 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import './custom_widgets/oiaWidgets.dart';
-import './infrastructure/constants.dart';
-import 'infrastructure/constants.dart';
-import 'infrastructure/database_integration.dart';
-import 'infrastructure/geolocation_integration.dart';
+import 'package:Projetao3/views/screens/base_screen.dart';
+import 'package:Projetao3/views/shared/utils.dart';
+import '../../custom_widgets/oiaWidgets.dart';
+import '../shared/constants.dart';
+import '../shared/constants.dart';
+import '../../services/firestore_service.dart';
+import '../../services/geolocation_service.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -15,7 +17,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  GeolocationIntegration _geolocationIntegration = GeolocationIntegration();
+  GeolocationService _geolocationIntegration = GeolocationService();
   UsuarioController _usuarioController = UsuarioController();
 
   Future<List<LatLng>> _points;
@@ -29,13 +31,13 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     setState(() {
-      _idWorker = ModalRoute.of(context).settings.arguments;
+      _idWorker = Utils.getRouteArgs(context);
       _points =
           Future.delayed(Duration(seconds: 5), () => _getLocations(_idWorker));
     });
     print("$_idWorker está presente");
 
-    return OiaScaffold(
+    return BaseScreen(
       appBarTitle: "Localização",
       body: Column(
         children: [
@@ -181,7 +183,7 @@ class _DisplayMapState extends State<DisplayMap> {
     return Column(
       children: [
         Container(
-          height: MediaQuery.of(context).size.height * 0.4,
+          height: Utils.screenDimensions(context).size.height * 0.4,
           child: GoogleMap(
             mapType: MapType.normal,
             markers: _markers,

@@ -1,8 +1,7 @@
-import 'package:Projetao3/infrastructure/cartaServico.dart';
+import 'package:Projetao3/models/cartaServico.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
-import './database_integration.dart';
 
 class OiaImageProvider {
   Future<File> getImage(ImageSource source) async {

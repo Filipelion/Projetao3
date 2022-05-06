@@ -1,11 +1,13 @@
-import 'package:Projetao3/crudServico/crudServicosArgs.dart';
-import 'package:Projetao3/infrastructure/constants.dart';
+import 'package:Projetao3/models/crudServicosArgs.dart';
+import 'package:Projetao3/views/screens/base_screen.dart';
+import 'package:Projetao3/views/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../custom_widgets/oiaWidgets.dart';
-import '../infrastructure/cartaServico.dart';
-import '../infrastructure/imageProvider.dart';
-import '../infrastructure/loginAuth.dart';
+import 'package:Projetao3/views/shared/utils.dart';
+import '../../custom_widgets/oiaWidgets.dart';
+import '../../models/cartaServico.dart';
+import '../../infrastructure/imageProvider.dart';
+import '../../services/login_service.dart';
 
 class CrudServico extends StatefulWidget {
   @override
@@ -17,7 +19,7 @@ class _CrudServicoState extends State<CrudServico> {
   String _tipo, uid;
   Future<List> _imagens;
   List _imagensURL = [];
-  LoginAuth auth = Authentication.loginAuth;
+  LoginService auth = locator<LoginService>();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -62,7 +64,7 @@ class _CrudServicoState extends State<CrudServico> {
 
   @override
   Widget build(BuildContext context) {
-    CrudServicoArgs args = ModalRoute.of(context).settings.arguments;
+    CrudServicoArgs? args = Utils.getRouteArgs(context);
     setState(() {
       _cartaServicos = args.cartaServicos;
       _tipo = args.tipo;
@@ -74,7 +76,7 @@ class _CrudServicoState extends State<CrudServico> {
       _descricaoController = TextEditingController(text: _descricao);
     });
 
-    return OiaScaffold(
+    return BaseScreen(
       appBarTitle: _tipo,
       body: _buildBody(),
     );

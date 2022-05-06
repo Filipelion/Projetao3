@@ -1,18 +1,23 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'serviceRegistragion.dart';
-import 'src/login.dart';
-import 'src/register.dart';
-import 'src/registerPhoto.dart';
+import 'package:Projetao3/core/locator.dart';
+import 'views/screens/serviceRegistragion.dart';
+import 'views/screens/login.dart';
+import 'views/screens/register.dart';
+import 'models/registerPhoto.dart';
 import './workersList.dart';
-import './crudServico/crudServico.dart';
-import './perfil_visualizacao.dart';
-import './profile.dart';
-import './map.dart';
+import 'views/screens/crudServico.dart';
+import 'views/screens/perfil_visualizacao.dart';
+import 'views/screens/profile.dart';
+import 'views/screens/map.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
+
+  setupLocator();
+
   runApp(MyApp());
 }
 
@@ -36,7 +41,7 @@ class MyApp extends StatelessWidget {
       '/profile': (context) => Profile(),
       '/servico': (context) => CrudServico(),
       '/worker_info': (context) => WorkerProfile(),
-      '/map' : (context) => MapScreen(),
+      '/map': (context) => MapScreen(),
     };
   }
 }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:Projetao3/core/locator.dart';
+import 'package:Projetao3/repository/professional_skills_repository.dart';
+import 'package:Projetao3/views/shared/utils.dart';
 import './custom_widgets/oiaWidgets.dart';
-import './infrastructure/loginAuth.dart';
-import './infrastructure/database_integration.dart';
-import './infrastructure/constants.dart';
-import './infrastructure/server_integration.dart';
-import 'infrastructure/constants.dart';
+import 'services/login_service.dart';
+import 'services/firestore_service.dart';
+import 'views/shared/constants.dart';
+import 'services/tags_service.dart';
+import 'views/shared/constants.dart';
 
 class WorkersPage extends StatefulWidget {
   @override
@@ -29,10 +32,11 @@ class WorkersList extends StatefulWidget {
 }
 
 class _WorkersListState extends State<WorkersList> {
-  UsuarioController _usuarioController = UsuarioController();
-  LoginAuth auth = Authentication.loginAuth;
+  ProfessionalSkillsRepository _usuarioController =
+      locator<ProfessionalSkillsRepository>();
+  LoginService auth = locator<LoginService>();
 
-  ServerIntegration _serverIntegration = ServerIntegration();
+  TagsService _serverIntegration = TagsService();
   List _suggestedTags;
   Future<List<Map>> _workers;
 
@@ -118,7 +122,7 @@ class _WorkersListState extends State<WorkersList> {
                       width: 50,
                     ),
                     Container(
-                      width: MediaQuery.of(context).size.width * 0.4,
+                      width: Utils.screenDimensions(context).size.width * 0.4,
                       child: Text(
                         "Encontre\nprofissionais",
                         textAlign: TextAlign.center,
@@ -130,7 +134,7 @@ class _WorkersListState extends State<WorkersList> {
               ),
               Constants.LARGE_HEIGHT_BOX,
               Container(
-                width: MediaQuery.of(context).size.width * 0.8,
+                width: Utils.screenDimensions(context).size.width * 0.8,
                 child: Form(
                   key: _searchKey,
                   child: Row(

@@ -1,11 +1,15 @@
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
-import './custom_widgets/oiaWidgets.dart';
-import './infrastructure/constants.dart';
-import 'custom_widgets/oiaWidgets.dart';
-import './infrastructure/imageProvider.dart';
-import 'infrastructure/database_integration.dart';
-import 'infrastructure/imageProvider.dart';
+import 'package:Projetao3/core/locator.dart';
+import 'package:Projetao3/repository/professional_skills_repository.dart';
+import 'package:Projetao3/views/screens/base_screen.dart';
+import 'package:Projetao3/views/shared/utils.dart';
+import '../../custom_widgets/oiaWidgets.dart';
+import '../shared/constants.dart';
+import '../../custom_widgets/oiaWidgets.dart';
+import '../../infrastructure/imageProvider.dart';
+import '../../services/firestore_service.dart';
+import '../../infrastructure/imageProvider.dart';
 
 class WorkerProfile extends StatefulWidget {
   @override
@@ -17,7 +21,8 @@ class _WorkerProfileState extends State<WorkerProfile> {
   num _valorMedio;
 
   final imageProvider = OiaImageProvider();
-  final cartaServicosController = CartaServicosController();
+  ProfessionalSkillsRepository _skillsRepository =
+      locator<ProfessionalSkillsRepository>();
 
   Future<List> _imagens;
   List _imagensURL;
@@ -29,14 +34,14 @@ class _WorkerProfileState extends State<WorkerProfile> {
 
   @override
   Widget build(BuildContext context) {
-    Map args = ModalRoute.of(context).settings.arguments;
+    Map? args = Utils.getRouteArgs(context);
 
     setState(() {
       _uid = args['uid'];
       _tag = args['tag'];
       nomeUsuario = args['nome'];
 
-      cartaServicosController.get(_uid).then((value) {
+      _skillsRepository.get(_uid).then((value) {
         Map cartaServicos = value.cartaServicos;
         _descricao = cartaServicos[_tag]['descricao'];
         _valorMedio = cartaServicos[_tag]['valorMedio'];
@@ -48,7 +53,7 @@ class _WorkerProfileState extends State<WorkerProfile> {
       );
     });
 
-    return OiaScaffold(
+    return BaseScreen(
       showBottomBar: true,
       appBarTitle: nomeUsuario,
       body: FutureBuilder(
@@ -86,7 +91,7 @@ class _WorkerProfileState extends State<WorkerProfile> {
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(10)),
             padding: EdgeInsets.all(Constants.smallSpace),
-            width: MediaQuery.of(context).size.width * 0.8,
+            width: Utils.screenDimensions(context).size.width * 0.8,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -113,7 +118,7 @@ class _WorkerProfileState extends State<WorkerProfile> {
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(10)),
             padding: EdgeInsets.all(Constants.smallSpace),
-            width: MediaQuery.of(context).size.width * 0.8,
+            width: Utils.screenDimensions(context).size.width * 0.8,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -156,8 +161,8 @@ class _WorkerProfileState extends State<WorkerProfile> {
 
   _buildCarousel(List imagens) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.35,
-      width: MediaQuery.of(context).size.width * 0.8,
+      height: Utils.screenDimensions(context).size.height * 0.35,
+      width: Utils.screenDimensions(context).size.width * 0.8,
       child: Carousel(
         images: imagens.map((e) => Image.network(e)).toList(),
         borderRadius: true,

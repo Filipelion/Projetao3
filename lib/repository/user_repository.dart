@@ -1,17 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:Projetao3/infrastructure/usuario.dart';
+import 'package:Projetao3/services/login_service.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
-import './loginAuth.dart';
-import './usuario.dart';
-import 'cartaServico.dart';
-import './geolocation_integration.dart';
+import '../services/login_service.dart';
+import '../infrastructure/usuario.dart';
+import '../models/cartaServico.dart';
+import '../services/geolocation_service.dart';
 import 'package:intl/intl.dart';
 
-class UsuarioController {
-  CollectionReference _usuarios;
+// TODO: Kill file
+class UserRepository {
+  late CollectionReference _usuarios;
 
-  UsuarioController() {
+  UserRepository() {
     this._usuarios = FirebaseFirestore.instance.collection("Usuario");
   }
 
@@ -33,7 +38,7 @@ class UsuarioController {
       return usuario;
     } catch (e) {
       // Caso não dê para recuperar do CloudFirestore, os datas serão extraídos da autenticação
-      User user = Authentication.loginAuth.getUser();
+      User user = locator<LoginService>().getUser();
       Usuario usuario =
           Usuario(uid: user.uid, nome: user.displayName, email: user.email);
       return usuario;
@@ -99,7 +104,7 @@ class UsuarioController {
   }
 
   Future<Map> updateCurrentGeolocation(String uid) async {
-    final geolocation = GeolocationIntegration();
+    final geolocation = GeolocationService();
     Position position = await geolocation.getCurrentLocation();
 
     Map<String, dynamic> localizacaoData = position.toJson();
@@ -115,47 +120,4 @@ class UsuarioController {
     DocumentReference ref = await this._getDocumentReference(uid);
     ref.update(data);
   }
-}
-
-class CartaServicosController {
-  CollectionReference _servicos;
-
-  CartaServicosController() {
-    this._servicos = FirebaseFirestore.instance.collection("CartaServicos");
-  }
-
-  Future<CartaServicos> get(String id) async {
-    CartaServicos cartaServicos =
-        await this._servicos.doc(id).get().then((value) {
-      Map data = value.data();
-      return CartaServicos(id: id, cartaServicos: data);
-    });
-    print("Testando a função get de CartaServicosController");
-    return cartaServicos;
-  }
-
-  FutureOr<DocumentReference> save(CartaServicos cartaServicos) async {
-    Map data = cartaServicos.get();
-    String id = cartaServicos.id;
-
-    DocumentReference reference = this._servicos.doc(id);
-    await reference.set(data);
-
-    return reference;
-  }
-
-  FutureOr<bool> isInDatabase(String id) async {
-    DocumentSnapshot snapshot = await this._servicos.doc(id).get();
-    try {
-      return snapshot.exists;
-    } catch (e) {
-      return false;
-    }
-  }
-}
-
-class DatabaseIntegration {
-  static final UsuarioController usuarioController = UsuarioController();
-  static final CartaServicosController cartaServicosController =
-      CartaServicosController();
 }

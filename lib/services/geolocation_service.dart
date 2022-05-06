@@ -1,7 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class GeolocationIntegration {
+class GeolocationService {
   Future<Position> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -29,8 +29,8 @@ class GeolocationIntegration {
     return await Geolocator.getCurrentPosition();
   }
 
-  Future<Position> getLastPosition() async {
-    Position position = await Geolocator.getLastKnownPosition();
+  Future<Position?> getLastPosition() async {
+    Position? position = await Geolocator.getLastKnownPosition();
     return position;
   }
 

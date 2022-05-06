@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
-import './custom_widgets/oiaWidgets.dart';
+import 'package:Projetao3/views/screens/base_screen.dart';
+import 'package:Projetao3/views/shared/utils.dart';
+import '../../custom_widgets/oiaWidgets.dart';
 
-import './infrastructure/loginAuth.dart';
-import './infrastructure/constants.dart';
-import './infrastructure/database_integration.dart';
-import './infrastructure/cartaServico.dart';
-import './infrastructure/server_integration.dart';
+import '../../services/login_service.dart';
+import '../shared/constants.dart';
+import '../../services/firestore_service.dart';
+import '../../models/cartaServico.dart';
+import '../../services/tags_service.dart';
 
 class ServiceRegistration extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class ServiceRegistration extends StatefulWidget {
 }
 
 class _ServiceRegistrationState extends State<ServiceRegistration> {
-  LoginAuth auth = Authentication.loginAuth;
+  LoginService auth = locator<LoginService>();
   List servicosUsuario = [];
 
   final _formKey = GlobalKey<FormState>();
@@ -23,7 +25,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
 
   UsuarioController _usuarioController = UsuarioController();
   CartaServicos _cartaServicos = CartaServicos();
-  ServerIntegration _serverIntegration = ServerIntegration();
+  TagsService _serverIntegration = TagsService();
 
   bool _userIsLoggedIn = false;
   bool _wasAddedNewServico = false;
@@ -55,12 +57,12 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   }
 
   _buildBody() {
-    return OiaScaffold(
+    return BaseScreen(
       appBarTitle: auth.getUserProfileName(),
       body: SafeArea(
         child: Container(
           margin: EdgeInsets.symmetric(vertical: Constants.mediumSpace),
-          height: MediaQuery.of(context).size.height * 0.8,
+          height: Utils.screenDimensions(context).size.height * 0.8,
           child: Column(
             children: <Widget>[
               Text(

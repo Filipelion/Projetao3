@@ -1,4 +1,4 @@
-import '../infrastructure/cartaServico.dart';
+import 'cartaServico.dart';
 
 class CrudServicoArgs {
   String tipo;

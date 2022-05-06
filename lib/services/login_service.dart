@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+// TODO: Find a way to log in with Facebook.
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
-class LoginAuth {
+class LoginService {
   FirebaseAuth firebaseAuth;
-  LoginAuth({this.firebaseAuth});
+  LoginService({this.firebaseAuth});
 
   GoogleSignIn _googleSignIn = GoogleSignIn();
   FacebookLogin _facebookLogin = FacebookLogin();
@@ -105,8 +107,4 @@ class LoginAuth {
   String getUid() {
     return this.getUser().uid;
   }
-}
-
-class Authentication {
-  static LoginAuth loginAuth = LoginAuth(firebaseAuth: FirebaseAuth.instance);
 }

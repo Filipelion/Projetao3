@@ -1,10 +1,13 @@
 import 'dart:async';
-import 'package:Projetao3/infrastructure/database_integration.dart';
+import 'package:Projetao3/core/locator.dart';
+import 'package:Projetao3/repository/user_repository.dart';
+import 'package:Projetao3/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import '../infrastructure/constants.dart';
-import '../infrastructure/loginAuth.dart';
+import 'package:Projetao3/views/shared/utils.dart';
+import '../shared/constants.dart';
+import '../../services/login_service.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -57,13 +60,15 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  LoginAuth auth;
+  LoginService auth;
   GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
+
+  UserRepository _userRepository = locator<UserRepository>();
 
   @override
   void initState() {
     super.initState();
-    auth = LoginAuth(firebaseAuth: widget.firebaseAuth);
+    auth = LoginService(firebaseAuth: widget.firebaseAuth);
     auth.authChangeListener();
   }
 
@@ -93,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
 
   _goToNextPage(String id) async {
     debugPrint("goToNextPage was called");
-    if (await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id)) {
+    if (await _userRepository.usuarioIsInDatabase(id)) {
       Navigator.popAndPushNamed(context, '/workers');
     } else {
       Navigator.popAndPushNamed(context, '/service_registration');
@@ -113,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    Size screen = MediaQuery.of(context).size;
+    Size screen = Utils.screenDimensions(context).size;
     return Scaffold(
       key: _scaffoldState,
       backgroundColor: Constants.COR_MOSTARDA,

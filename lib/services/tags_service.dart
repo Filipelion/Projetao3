@@ -1,12 +1,15 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class ServerIntegration {
-  String _url = "http://a374810c4541.ngrok.io";
+import 'package:Projetao3/core/urls.dart';
+
+class TagsService {
+  String _url = Urls.clusterServiceUrl;
   String _route = "/tags";
 
-  Future<Map> getSameClusterTags({String tag}) async {
+  Future<Map> getSameClusterTags({String? tag}) async {
     String customUrl = this._url + this._route;
+
     Map<String, String> headers = {
       'Content-Type': 'application/json;charset=UTF-8',
       'Charset': 'utf-8'
