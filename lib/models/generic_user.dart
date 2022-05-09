@@ -1,15 +1,17 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:Projetao3/core/enums/gender.dart';
 import 'package:Projetao3/core/interfaces/models/base_model.dart';
 import 'package:Projetao3/models/professional_skill.dart';
 
-class User implements BaseModel {
-  String uid, name, email, gender;
+class GenericUser implements BaseModel {
+  String uid, name, email;
+  Gender gender;
   DateTime? lastSeen;
-  List<User>? favorites;
+  List<GenericUser>? favorites;
   List<ProfessionalSkill>? skills;
   Position? position;
 
-  User({
+  GenericUser({
     required this.uid,
     required this.name,
     required this.email,
@@ -20,7 +22,7 @@ class User implements BaseModel {
     this.lastSeen,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
+  factory GenericUser.fromJson(Map<String, dynamic> json) => GenericUser(
         uid: json["uid"],
         name: json["nome"],
         gender: json["genero"],
@@ -33,7 +35,7 @@ class User implements BaseModel {
         favorites: json["favoritos"] == null
             ? null
             : List.from(json["favoritos"])
-                .map((user) => User.fromJson(user))
+                .map((user) => GenericUser.fromJson(user))
                 .toList(),
         position: json["localizacao"] == null
             ? null

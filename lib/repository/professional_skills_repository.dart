@@ -1,37 +1,38 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:Projetao3/infrastructure/usuario.dart';
-import 'package:Projetao3/services/login_service.dart';
+import 'package:Projetao3/models/professional_skill.dart';
+import 'package:Projetao3/models/professional_skills_list.dart';
+import 'package:Projetao3/repository/shared/tables_name.dart';
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:geolocator/geolocator.dart';
-import '../services/login_service.dart';
-import '../infrastructure/usuario.dart';
-import '../models/cartaServico.dart';
-import '../services/geolocation_service.dart';
-import 'package:intl/intl.dart';
 
 // TODO: Kill file
 class ProfessionalSkillsRepository {
+  final _tableName = TablesName.CartaServicos;
   late CollectionReference _servicos;
 
   ProfessionalSkillsRepository() {
-    this._servicos = FirebaseFirestore.instance.collection("CartaServicos");
+    this._servicos = FirebaseFirestore.instance.collection(_tableName);
   }
 
-  Future<CartaServicos> get(String id) async {
-    CartaServicos cartaServicos =
+  Future<ProfessionalSkillsList> get(String id) async {
+    ProfessionalSkillsList cartaServicos =
         await this._servicos.doc(id).get().then((value) {
-      Map data = value.data();
-      return CartaServicos(id: id, cartaServicos: data);
+      var data = json.decode(value.data().toString()) as List;
+      var skills = data
+          .map(
+            (item) => ProfessionalSkill.fromJson(item),
+          )
+          .toList();
+
+      return ProfessionalSkillsList(id: id, list: skills);
     });
     print("Testando a função get de CartaServicosController");
     return cartaServicos;
   }
 
-  FutureOr<DocumentReference> save(CartaServicos cartaServicos) async {
-    Map data = cartaServicos.get();
+  Future<DocumentReference> save(ProfessionalSkillsList cartaServicos) async {
+    var data = cartaServicos.list;
     String id = cartaServicos.id;
 
     DocumentReference reference = this._servicos.doc(id);
@@ -40,7 +41,7 @@ class ProfessionalSkillsRepository {
     return reference;
   }
 
-  FutureOr<bool> isInDatabase(String id) async {
+  Future<bool> isInDatabase(String id) async {
     DocumentSnapshot snapshot = await this._servicos.doc(id).get();
     try {
       return snapshot.exists;

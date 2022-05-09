@@ -59,7 +59,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Digite um telefone';
                   }
                   return null;
@@ -95,7 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 validator: (value) {
-                  if (value.isEmpty) {
+                  if (value == null || value.isEmpty) {
                     return 'Digite um nome';
                   }
                   return null;

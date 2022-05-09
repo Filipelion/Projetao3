@@ -4,6 +4,7 @@ import 'package:Projetao3/models/crudServicosArgs.dart';
 import 'package:Projetao3/models/cartaServico.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:Projetao3/models/skills_crud_argument.dart';
 import 'package:Projetao3/views/components/button_component.dart';
 import 'package:Projetao3/views/components/card_component.dart';
 import 'package:Projetao3/views/screens/base_screen.dart';
@@ -65,7 +66,7 @@ class _ProfileState extends State<Profile> {
         name: nome,
         gender: genero,
         email: email,
-        servicos: servicos,
+        _skills: servicos,
       );
       _usuarioController.saveUsuario(_usuario);
       Navigator.pushNamed(context, '/workers');
@@ -175,8 +176,8 @@ class _ProfileState extends State<Profile> {
                       return CardComponent(
                         title: tipo,
                         onTap: () {
-                          var args = CrudServicoArgs(
-                              tipo: tipo, cartaServicos: _cartaServicos);
+                          var args = SkillsCrudArguments(
+                              skillName: tipo, skillsList: _cartaServicos);
                           Navigator.pushNamed(context, '/servico',
                               arguments: args);
                         },

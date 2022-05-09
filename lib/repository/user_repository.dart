@@ -1,23 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:Projetao3/infrastructure/usuario.dart';
+import 'package:Projetao3/core/enums/gender.dart';
+import 'package:Projetao3/core/locator.dart';
+import 'package:Projetao3/models/generic_user.dart';
+import 'package:Projetao3/models/professional_skill.dart';
+import 'package:Projetao3/models/professional_skills_list.dart';
+import 'package:Projetao3/repository/shared/tables_name.dart';
 import 'package:Projetao3/services/login_service.dart';
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/login_service.dart';
-import '../infrastructure/usuario.dart';
-import '../models/cartaServico.dart';
 import '../services/geolocation_service.dart';
 import 'package:intl/intl.dart';
 
 // TODO: Kill file
 class UserRepository {
+  final String _tableName = TablesName.User;
   late CollectionReference _usuarios;
 
   UserRepository() {
-    this._usuarios = FirebaseFirestore.instance.collection("Usuario");
+    this._usuarios = FirebaseFirestore.instance.collection(_tableName);
   }
 
   Future<DocumentReference> _getDocumentReference(String id) async {
@@ -29,37 +31,55 @@ class UserRepository {
     return reference.get();
   }
 
-  Future<Usuario> getUsuarioData(String id) async {
+  Future<GenericUser> getUser(String id) async {
     try {
       // Tentando recuperar os dados do usuário do banco de dados
       DocumentSnapshot snapshot = await this._getUsuarioByID(id);
-      Map usuarioData = snapshot.data();
-      Usuario usuario = Usuario.fromJson(usuarioData);
-      return usuario;
+
+      GenericUser? user = snapshot.data() as GenericUser;
+      return user;
     } catch (e) {
       // Caso não dê para recuperar do CloudFirestore, os datas serão extraídos da autenticação
-      User user = locator<LoginService>().getUser();
-      Usuario usuario =
-          Usuario(uid: user.uid, name: user.displayName, email: user.email);
+      User? user = locator<LoginService>().getUser();
+
+      // TODO: Gender param is mocked.
+      GenericUser usuario = GenericUser(
+        uid: user!.uid,
+        name: user.displayName!,
+        email: user.email!,
+        gender: Gender.Other,
+      );
+
       return usuario;
     }
   }
 
-  FutureOr<List<Map>> getAllWorkers(String tag) async {
+  FutureOr<List<GenericUser>> getAllWorkers(String tag) async {
     QuerySnapshot snapshot = await _usuarios.get();
-    List<Map> workers = [];
+    List<GenericUser> workers = [];
 
-    for (var worker in snapshot.docs) {
-      Map<String, dynamic> workerData = worker.data();
-      DocumentReference ref = workerData["servicos"];
-      DocumentSnapshot servicos = await ref.get();
-      if (servicos.data().keys.contains(tag)) workers.add(workerData);
+    for (var user in snapshot.docs) {
+      Object? workerData = user.data();
+
+      DocumentReference ref = (workerData! as dynamic)["servicos"];
+
+      var skillsData = await ref.get().then((value) => value.data() as dynamic);
+      var skills = List<ProfessionalSkill>.from(skillsData);
+
+      var worker = workerData as GenericUser;
+      worker.skills = skills;
+
+      var hasTag = skills.where((element) => element.name == tag).isNotEmpty;
+
+      if (hasTag) {
+        workers.add(workerData);
+      }
     }
 
     return workers;
   }
 
-  FutureOr<bool> usuarioIsInDatabase(String id) async {
+  FutureOr<bool> userExists(String id) async {
     DocumentSnapshot documentSnapshot = await this._getUsuarioByID(id);
     try {
       return documentSnapshot.exists;
@@ -68,7 +88,7 @@ class UserRepository {
     }
   }
 
-  void saveUsuario(Usuario usuario) async {
+  void saveUsuario(GenericUser usuario) async {
     String uid = usuario.uid;
     Map usuarioData = usuario.toJson();
     usuarioData['visto_ultimo'] = this.setVistoUltimo();
@@ -90,16 +110,16 @@ class UserRepository {
     return today;
   }
 
-  Future<CartaServicos> getUsuarioCartaServicos(String id) async {
-    Usuario usuario = await this.getUsuarioData(id);
-    DocumentReference snapshot = usuario.skills;
-    print("Testando a função getUsuarioCartaServicos..");
-
+  Future<ProfessionalSkillsList> getUserSkillsList(String id) async {
     try {
-      DocumentSnapshot data = await snapshot.get();
-      return CartaServicos(id: id, skillsList: data.data());
+      GenericUser user = await this.getUser(id);
+      List<ProfessionalSkill>? skills = user.skills;
+
+      print("Testando a função getUsuarioCartaServicos..");
+
+      return ProfessionalSkillsList(id: id, list: skills ?? []);
     } catch (e) {
-      return CartaServicos(id: id, skillsList: {});
+      return ProfessionalSkillsList(id: id, list: []);
     }
   }
 
@@ -112,8 +132,8 @@ class UserRepository {
   }
 
   Future<Position> getUsuarioLocation(String id) async {
-    Usuario usuario = await this.getUsuarioData(id);
-    return Position.fromMap(usuario.localizacao);
+    GenericUser user = await this.getUser(id);
+    return user.position!;
   }
 
   Future<void> update(String uid, Map<String, dynamic> data) async {

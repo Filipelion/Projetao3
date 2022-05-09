@@ -4,7 +4,6 @@ import 'package:Projetao3/core/locator.dart';
 import 'views/screens/serviceRegistragion.dart';
 import 'views/screens/login_screen.dart';
 import 'views/screens/register.dart';
-import 'models/registerPhoto.dart';
 import 'views/screens/workersList.dart';
 import 'views/screens/crudServico.dart';
 import 'views/screens/perfil_visualizacao.dart';
