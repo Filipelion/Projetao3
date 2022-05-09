@@ -3,6 +3,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:Projetao3/core/interfaces/models/base_model.dart';
 
 class Utils {
   static screenDimensions(BuildContext context) => MediaQuery.of(context);

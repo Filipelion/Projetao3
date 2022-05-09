@@ -1,11 +1,13 @@
-import 'package:Projetao3/models/crudServicosArgs.dart';
+import 'package:Projetao3/core/locator.dart';
+import 'package:Projetao3/models/professional_skill.dart';
+import 'package:Projetao3/models/professional_skills_list.dart';
+import 'package:Projetao3/models/skills_crud_argument.dart';
+import 'package:Projetao3/views/components/button_component.dart';
 import 'package:Projetao3/views/screens/base_screen.dart';
 import 'package:Projetao3/views/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:Projetao3/views/shared/utils.dart';
-import '../../custom_widgets/oiaWidgets.dart';
-import '../../models/cartaServico.dart';
 import '../../infrastructure/imageProvider.dart';
 import '../../services/login_service.dart';
 
@@ -15,7 +17,7 @@ class CrudServico extends StatefulWidget {
 }
 
 class _CrudServicoState extends State<CrudServico> {
-  CartaServicos _cartaServicos;
+  late ProfessionalSkillsList _skillsList;
   String _tipo, uid;
   Future<List> _imagens;
   List _imagensURL = [];
@@ -47,14 +49,13 @@ class _CrudServicoState extends State<CrudServico> {
 
       String descricao = _descricaoController.value.text;
 
-      Map<String, dynamic> json = {
-        'tipo': _tipo,
-        'imagens': _imagensURL,
-        'valorMedio': valorMedio,
-        'descricao': descricao,
-      };
+      ProfessionalSkill _servico = ProfessionalSkill(
+        name: _tipo,
+        images: _imagensURL,
+        meanValue: valorMedio,
+        description: descricao,
+      );
 
-      Servico _servico = Servico.fromJson(json);
       Map<String, dynamic> servicoData = _servico.toJson();
       _cartaServicos.save(_tipo, servicoData);
       print(_cartaServicos.get().toString());
@@ -64,14 +65,16 @@ class _CrudServicoState extends State<CrudServico> {
 
   @override
   Widget build(BuildContext context) {
-    CrudServicoArgs? args = Utils.getRouteArgs(context);
-    setState(() {
-      _cartaServicos = args.cartaServicos;
-      _tipo = args.tipo;
+    SkillsCrudArguments? args =
+        Utils.getRouteArgs(context) as SkillsCrudArguments;
 
-      Servico _servico = _cartaServicos.getServico(_tipo);
-      _valorMedio = _servico.valorMedio.toString();
-      _descricao = _servico.descricao;
+    setState(() {
+      _cartaServicos = args.skillsList;
+      _tipo = args.skillName;
+
+      ProfessionalSkill _servico = _cartaServicos.getSkill(_tipo);
+      _valorMedio = _servico.meanValue.toString();
+      _descricao = _servico.description;
       _valorMedioController = TextEditingController(text: _valorMedio);
       _descricaoController = TextEditingController(text: _descricao);
     });
@@ -166,12 +169,13 @@ class _CrudServicoState extends State<CrudServico> {
                           case ConnectionState.done:
                             _imagensURL = snapshot.data ?? [];
                             return _buildGridView();
-                            break;
                           case ConnectionState.none:
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(
-                                    "Não foi possível recuperar as imagens...")));
-                            return null;
+                              content: Text(
+                                "Não foi possível recuperar as imagens...",
+                              ),
+                            ));
+                            return Container();
                           default:
                             return Center(
                               child: CircularProgressIndicator(),
@@ -182,10 +186,7 @@ class _CrudServicoState extends State<CrudServico> {
               ),
             ),
             Constants.MEDIUM_HEIGHT_BOX,
-            OiaLargeButton(
-              title: "Salvar",
-              onPressed: _onSaveFields,
-            ),
+            ButtonComponent(title: "Salvar", onPressed: _onSaveFields),
             Constants.LARGE_HEIGHT_BOX,
           ],
         ),

@@ -11,7 +11,7 @@ class LoginService {
   GoogleSignIn _googleSignIn = GoogleSignIn();
   FacebookLogin _facebookLogin = FacebookLogin();
 
-  User _currentUser;
+  User? _currentUser;
 
   Future<void> signOut() async {
     return await firebaseAuth.signOut();
@@ -41,14 +41,14 @@ class LoginService {
     return user;
   }
 
-  Future<User> signInWithGoogle() async {
+  Future<User?> signInWithGoogle() async {
     print("SignIn method called...");
     if (this.userIsLoggedIn()) return _currentUser;
 
     try {
       print("Trying to sign in");
 
-      final GoogleSignInAccount googleSignInAccount =
+      final GoogleSignInAccount? googleSignInAccount =
           await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleSignInAuthentication =
           await googleSignInAccount.authentication;
@@ -73,7 +73,7 @@ class LoginService {
     }
   }
 
-  Future<User> signInWithFacebook() async {
+  Future<User?> signInWithFacebook() async {
     if (this.userIsLoggedIn()) return _currentUser;
 
     try {

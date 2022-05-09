@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:Projetao3/core/locator.dart';
 import 'package:Projetao3/repository/professional_skills_repository.dart';
 import 'package:Projetao3/views/shared/utils.dart';
-import './custom_widgets/oiaWidgets.dart';
 import 'services/login_service.dart';
-import 'services/firestore_service.dart';
 import 'views/shared/constants.dart';
 import 'services/tags_service.dart';
-import 'views/shared/constants.dart';
 
 class WorkersPage extends StatefulWidget {
   @override

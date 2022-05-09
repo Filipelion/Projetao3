@@ -62,8 +62,8 @@ class _ProfileState extends State<Profile> {
 
       _usuario = Usuario(
         uid: uid,
-        nome: nome,
-        genero: genero,
+        name: nome,
+        gender: genero,
         email: email,
         servicos: servicos,
       );
@@ -175,7 +175,7 @@ class _ProfileState extends State<Profile> {
                       return CardComponent(
                         title: tipo,
                         onTap: () {
-                          CrudServicoArgs args = CrudServicoArgs(
+                          var args = CrudServicoArgs(
                               tipo: tipo, cartaServicos: _cartaServicos);
                           Navigator.pushNamed(context, '/servico',
                               arguments: args);

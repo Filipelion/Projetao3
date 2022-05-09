@@ -40,7 +40,7 @@ class UserRepository {
       // Caso não dê para recuperar do CloudFirestore, os datas serão extraídos da autenticação
       User user = locator<LoginService>().getUser();
       Usuario usuario =
-          Usuario(uid: user.uid, nome: user.displayName, email: user.email);
+          Usuario(uid: user.uid, name: user.displayName, email: user.email);
       return usuario;
     }
   }
@@ -92,14 +92,14 @@ class UserRepository {
 
   Future<CartaServicos> getUsuarioCartaServicos(String id) async {
     Usuario usuario = await this.getUsuarioData(id);
-    DocumentReference snapshot = usuario.servicos;
+    DocumentReference snapshot = usuario.skills;
     print("Testando a função getUsuarioCartaServicos..");
 
     try {
       DocumentSnapshot data = await snapshot.get();
-      return CartaServicos(id: id, cartaServicos: data.data());
+      return CartaServicos(id: id, skillsList: data.data());
     } catch (e) {
-      return CartaServicos(id: id, cartaServicos: {});
+      return CartaServicos(id: id, skillsList: {});
     }
   }
 

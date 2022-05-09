@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:Projetao3/core/locator.dart';
 import 'package:Projetao3/repository/user_repository.dart';
-import 'package:Projetao3/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:Projetao3/views/controllers/login_controller.dart';
 import 'package:Projetao3/views/shared/utils.dart';
 import '../shared/constants.dart';
 import '../../services/login_service.dart';
@@ -15,8 +15,6 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  FirebaseAuth firebaseAuth;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +22,7 @@ class _LoginState extends State<Login> {
         future: _connectToFirebase(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return LoginPage(firebaseAuth: firebaseAuth);
+            return LoginPage();
           } else if (snapshot.connectionState == ConnectionState.none) {
             Scaffold.of(context).showBottomSheet((context) => Text(
                 "App temporariamente indisponível. Tente novamente mais tarde"));
@@ -52,15 +50,14 @@ class _LoginState extends State<Login> {
 }
 
 class LoginPage extends StatefulWidget {
-  final FirebaseAuth firebaseAuth;
-  const LoginPage({Key key, this.firebaseAuth}) : super(key: key);
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  LoginService auth;
+  final LoginController _loginController = locator<LoginController>();
   GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
   UserRepository _userRepository = locator<UserRepository>();
@@ -68,8 +65,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    auth = LoginService(firebaseAuth: widget.firebaseAuth);
-    auth.authChangeListener();
   }
 
   void _googleSignIn() {
@@ -157,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                           color: Constants.COR_MOSTARDA,
                           fontSize: Constants.smallFontSize),
                     ),
-                    onPressed: _googleSignIn,
+                    onPressed: () async => _loginController.googlSignin(),
                     style: ButtonStyle(
                         backgroundColor:
                             MaterialStateProperty.all<Color>(Colors.black)),
