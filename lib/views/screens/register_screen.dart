@@ -120,9 +120,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: new Text(dropDownSelectedItem),
                 );
               }).toList(),
-              onChanged: (String newValueSelected) {
+              onChanged: (String? newValueSelected) {
                 setState(() {
-                  this._selectGender = newValueSelected;
+                  this._selectGender = newValueSelected ?? 'Feminino';
                 });
               },
               value: _selectGender,

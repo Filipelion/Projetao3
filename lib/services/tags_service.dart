@@ -10,7 +10,7 @@ class TagsService {
   String _url = Urls.clusterServiceUrl;
   String _route = ApiRoutes.Tags;
 
-  Future<Map> getSameClusterTags({String? tag}) async {
+  Future<Map<String, dynamic>> getSameClusterTags({String? tag}) async {
     String customUrl = this._url + this._route;
 
     var headers = _setHeaders();
@@ -23,7 +23,7 @@ class TagsService {
 
     final response = await http.get(url, headers: headers);
     print(json.decode(response.body));
-    return json.decode(response.body) as Map;
+    return json.decode(response.body) as Map<String, dynamic>;
   }
 
   Map<String, String> _setHeaders() => {

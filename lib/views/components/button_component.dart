@@ -19,7 +19,7 @@ class ButtonComponent extends StatelessWidget {
           style: TextStyle(
               fontSize: Constants.regularFontSize, color: Colors.white),
         ),
-        onPressed: () => this.onPressed,
+        onPressed: () async => this.onPressed,
         color: Constants.COR_VINHO,
       ),
     );

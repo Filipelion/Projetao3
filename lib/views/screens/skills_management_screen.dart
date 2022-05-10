@@ -1,80 +1,92 @@
+import 'package:provider/provider.dart';
 import 'package:Projetao3/core/locator.dart';
 import 'package:Projetao3/models/professional_skill.dart';
 import 'package:Projetao3/models/professional_skills_list.dart';
-import 'package:Projetao3/models/skills_crud_argument.dart';
 import 'package:Projetao3/views/components/button_component.dart';
+import 'package:Projetao3/views/controllers/user_controller.dart';
+import 'package:Projetao3/views/providers/user_viewmodel.dart';
 import 'package:Projetao3/views/screens/base_screen.dart';
 import 'package:Projetao3/views/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:Projetao3/views/shared/utils.dart';
-import '../../infrastructure/imageProvider.dart';
-import '../../services/login_service.dart';
+import '../../services/image_service.dart';
 
-class CrudServico extends StatefulWidget {
+class SkillsCrud extends StatefulWidget {
   @override
-  _CrudServicoState createState() => _CrudServicoState();
+  _SkillsCrudState createState() => _SkillsCrudState();
 }
 
-class _CrudServicoState extends State<CrudServico> {
+class _SkillsCrudState extends State<SkillsCrud> {
   late ProfessionalSkillsList _skillsList;
-  String _tipo, uid;
-  Future<List> _imagens;
+  late String _tipo;
+  String? uid;
+  Future<List>? _imagens;
   List _imagensURL = [];
-  LoginService auth = locator<LoginService>();
 
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController _valorMedioController, _descricaoController;
-  String _valorMedio, _descricao;
+  late TextEditingController _valorMedioController, _descricaoController;
+  String? _valorMedio, _descricao;
 
-  final imageProvider = OiaImageProvider();
+  late UserViewModel _userViewModel;
+
+  UserController _userController = locator<UserController>();
+
+  final imageProvider = ImageService();
+
   @override
   void initState() {
     super.initState();
-    auth.authChangeListener();
-    uid = auth.getUid();
-    _imagens = Future.delayed(
-      Duration(seconds: 4),
-      () => imageProvider.getAllImagesOfAService(uid, _tipo),
-    );
+    _userController.authenticationStateMonitor();
+
+    uid = _userController.uid;
+
+    _valorMedioController = TextEditingController(text: _valorMedio);
+    _descricaoController = TextEditingController(text: _descricao);
   }
 
   _onSaveFields() {
-    if (_formKey.currentState.validate()) {
-      _formKey.currentState.save();
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
 
       String valorMedioText = _valorMedioController.value.text;
       num valorMedio = valorMedioText != "" ? num.parse(valorMedioText) : 0;
 
       String descricao = _descricaoController.value.text;
 
-      ProfessionalSkill _servico = ProfessionalSkill(
+      ProfessionalSkill skill = ProfessionalSkill(
         name: _tipo,
         images: _imagensURL,
         meanValue: valorMedio,
         description: descricao,
       );
 
-      Map<String, dynamic> servicoData = _servico.toJson();
-      _cartaServicos.save(_tipo, servicoData);
-      print(_cartaServicos.get().toString());
-      Navigator.pushNamed(context, '/profile', arguments: _cartaServicos);
+      _userController.addSkill(skill, _skillsList);
+
+      Navigator.pushNamed(context, '/profile');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    SkillsCrudArguments? args =
-        Utils.getRouteArgs(context) as SkillsCrudArguments;
+    _userViewModel = Provider.of<UserViewModel>(context);
+
+    _tipo = _userViewModel.selectedSkill!;
 
     setState(() {
-      _cartaServicos = args.skillsList;
-      _tipo = args.skillName;
+      if (uid != null) {
+        _imagens = Future.delayed(
+          Duration(seconds: 4),
+          () => imageProvider.getServiceImages(uid!, _tipo),
+        );
+      }
 
-      ProfessionalSkill _servico = _cartaServicos.getSkill(_tipo);
-      _valorMedio = _servico.meanValue.toString();
-      _descricao = _servico.description;
+      ProfessionalSkill skill =
+          _skillsList.list.where((element) => element.name == _tipo).first;
+
+      _valorMedio = skill.meanValue.toString();
+      _descricao = skill.description;
+
       _valorMedioController = TextEditingController(text: _valorMedio);
       _descricaoController = TextEditingController(text: _descricao);
     });
@@ -147,17 +159,18 @@ class _CrudServicoState extends State<CrudServico> {
                   Constants.MEDIUM_HEIGHT_BOX,
                   TextButton.icon(
                       onPressed: () {
-                        imageProvider
-                            .sendImage(ImageSource.camera, _tipo, uid)
-                            .then((value) {
-                          if (value != null) {
-                            print(value);
-                            setState(() {
-                              _imagensURL.add(value);
-                              print(_imagensURL);
-                            });
-                          }
-                        });
+                        if (uid != null)
+                          imageProvider
+                              .sendImage(ImageSource.camera, _tipo, uid!)
+                              .then((value) {
+                            if (value != null) {
+                              print(value);
+                              setState(() {
+                                _imagensURL.add(value);
+                                print(_imagensURL);
+                              });
+                            }
+                          });
                       },
                       icon: Icon(Icons.camera),
                       label: Text("Adicionar imagem")),

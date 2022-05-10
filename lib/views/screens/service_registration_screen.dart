@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
+import 'package:provider/provider.dart';
+import 'package:Projetao3/core/locator.dart';
+import 'package:Projetao3/models/professional_skills_list.dart';
+import 'package:Projetao3/views/components/button_component.dart';
+import 'package:Projetao3/views/controllers/user_controller.dart';
+import 'package:Projetao3/views/controllers/worker_controller.dart';
+import 'package:Projetao3/views/providers/user_viewmodel.dart';
 import 'package:Projetao3/views/screens/base_screen.dart';
 import 'package:Projetao3/views/shared/utils.dart';
-import '../../custom_widgets/oiaWidgets.dart';
-
-import '../../services/login_service.dart';
 import '../shared/constants.dart';
-import '../../services/firestore_service.dart';
-import '../../models/cartaServico.dart';
-import '../../services/tags_service.dart';
 
 class ServiceRegistration extends StatefulWidget {
   @override
@@ -16,49 +17,52 @@ class ServiceRegistration extends StatefulWidget {
 }
 
 class _ServiceRegistrationState extends State<ServiceRegistration> {
-  LoginService auth = locator<LoginService>();
-  List servicosUsuario = [];
-
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _controller = TextEditingController();
-  String textoEmBusca;
+  final TextEditingController _tagTextController = TextEditingController();
+  String? searchText;
 
-  UsuarioController _usuarioController = UsuarioController();
-  CartaServicos _cartaServicos = CartaServicos();
-  TagsService _serverIntegration = TagsService();
+  UserController _userController = locator<UserController>();
+  // WorkerController _workerController = locator<WorkerController>();
 
-  bool _userIsLoggedIn = false;
+  late UserViewModel _userViewModel;
+
   bool _wasAddedNewServico = false;
 
-  List _tags;
+  List? _tags;
 
   @override
   void initState() {
     super.initState();
-    auth.authChangeListener();
-    if (auth.userIsLoggedIn() && !_userIsLoggedIn) {
-      setState(() {
-        _userIsLoggedIn = true;
-      });
 
-      String uid = auth.getUid();
-      _usuarioController.getUsuarioCartaServicos(uid).then((value) {
-        setState(() {
-          servicosUsuario = value.tipos();
-          _cartaServicos = value;
-        });
-      });
-    }
+    _userController.authenticationStateMonitor();
   }
 
   @override
   Widget build(BuildContext context) {
-    return _buildBody();
+    _userViewModel = Provider.of<UserViewModel>(context);
+
+    _loginViewHandler();
+
+    var _uid = _userViewModel.uid;
+
+    return FutureBuilder(
+        future: _loadSkills(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return _buildBody();
+          } else if (snapshot.hasError) {
+            return Container(
+              child: Text("Erro ao requisitar os serviços."),
+            );
+          } else {
+            return CircularProgressIndicator();
+          }
+        });
   }
 
   _buildBody() {
     return BaseScreen(
-      appBarTitle: auth.getUserProfileName(),
+      appBarTitle: _userController.userName ?? "",
       body: SafeArea(
         child: Container(
           margin: EdgeInsets.symmetric(vertical: Constants.mediumSpace),
@@ -78,7 +82,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                   children: [
                     Flexible(
                       child: TextFormField(
-                        controller: _controller,
+                        controller: _tagTextController,
                         decoration: InputDecoration(
                           hintText: "Pesquisar serviço...",
                           border: OutlineInputBorder(),
@@ -87,31 +91,18 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                         ),
                         onChanged: (texto) {
                           setState(() {
-                            this.textoEmBusca = texto;
+                            this.searchText = texto;
                           });
                         },
-                        validator: (String texto) {
-                          if (texto.isEmpty) return "O texto não pode ser nulo";
+                        validator: (String? text) {
+                          if (text != null && text.isEmpty)
+                            return "O texto não pode ser nulo";
                         },
                       ),
                     ),
                     IconButton(
                       icon: Icon(Icons.search),
-                      onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          String tag = this.textoEmBusca;
-                          Map retorno = await _serverIntegration
-                              .getSameClusterTags(tag: tag);
-
-                          setState(() {
-                            _controller.clear();
-                            this._tags = retorno['tags'];
-                          });
-
-                          _buildModalBottomSheet(context);
-                          // TODO: Mostrar as tags em um pop-up
-                        }
-                      },
+                      onPressed: () async => await _searchTag(),
                     )
                   ],
                 ),
@@ -120,7 +111,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
               Flexible(
                 child: _buildList(),
               ),
-              OiaLargeButton(
+              ButtonComponent(
                 title: "Continuar",
                 onPressed: _goToProfile,
               )
@@ -132,16 +123,18 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   }
 
   _buildList() {
+    var skills = _userViewModel.professionalSkills!.list;
+
     return ListView.builder(
       physics: PageScrollPhysics(),
       reverse: true,
-      itemCount: servicosUsuario.length,
+      itemCount: skills.length,
       itemBuilder: (context, index) {
         return Container(
           child: Column(
             children: [
               ListTile(
-                title: Text(servicosUsuario[index]),
+                title: Text(skills[index].name),
                 tileColor: Colors.grey[100],
                 dense: true,
               ),
@@ -154,13 +147,13 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
   }
 
   _goToProfile() async {
-    String id = auth.getUid();
+    String? id = _userController.uid;
+    bool userExists = id != null ? await _userController.userExists(id) : false;
 
-    if (await DatabaseIntegration.usuarioController.usuarioIsInDatabase(id) &&
-        !_wasAddedNewServico) {
+    if (userExists && !_wasAddedNewServico) {
       Navigator.popAndPushNamed(context, '/workers');
     } else {
-      Navigator.pushNamed(context, '/profile', arguments: _cartaServicos);
+      Navigator.pushNamed(context, '/profile');
     }
   }
 
@@ -198,9 +191,9 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                       ),
                       Constants.MEDIUM_HEIGHT_BOX,
                       Tags(
-                        itemCount: _tags.length, // required
+                        itemCount: _tags?.length ?? 0, // required
                         itemBuilder: (int index) {
-                          final item = _tags[index];
+                          final item = _tags![index];
 
                           return ItemTags(
                             // Each ItemTags must contain a Key. Keys allow Flutter to
@@ -225,7 +218,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                                 // Remove the item from the data source.
                                 setState(() {
                                   // required
-                                  _tags.removeAt(index);
+                                  _tags!.removeAt(index);
                                 });
                                 //required
                                 return true;
@@ -234,8 +227,6 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                             onPressed: (item) {
                               print(item.title);
                               setState(() {
-                                servicosUsuario.add(item.title);
-                                _cartaServicos.save(item.title, {});
                                 _wasAddedNewServico = true;
                               });
                             },
@@ -250,5 +241,47 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
             ),
           );
         });
+  }
+
+  _loginViewHandler() {
+    // Handles the view depending on user is logged in or not.
+    var isLoggedIn = _userController.isLoggedIn();
+
+    isLoggedIn ? _userViewModel.login() : _userViewModel.logout();
+
+    var uid = _userController.uid;
+    _userViewModel.setUid(uid);
+  }
+
+  Future<void> _searchTag() async {
+    if (_formKey.currentState!.validate()) {
+      if (searchText != null) {
+        String searchTag = this.searchText!;
+        var tags = await _userController.getTags(searchTag);
+
+        setState(() {
+          _tagTextController.clear();
+          this._tags = tags;
+        });
+      }
+
+      _buildModalBottomSheet(context);
+      // TODO: Mostrar as tags em um pop-up
+    }
+  }
+
+  Future<ProfessionalSkillsList?> _loadSkills() async {
+    if (_userController.isLoggedIn()) {
+      String uid = _userController.uid!;
+      var skills = await _userController.getSkills(uid);
+
+      if (skills != null) {
+        _userViewModel.setSKills(skills);
+      }
+
+      return skills;
+    }
+
+    return null;
   }
 }

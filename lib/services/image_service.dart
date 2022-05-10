@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:Projetao3/core/locator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -57,7 +59,7 @@ class ImageService {
     return downloadURL;
   }
 
-  Future<List?> getAllImagesOfAService(String uid, String tipo) async {
+  FutureOr<List> getServiceImages(String uid, String tipo) async {
     late List images;
 
     bool exists = await _userRepository.userExists(uid);

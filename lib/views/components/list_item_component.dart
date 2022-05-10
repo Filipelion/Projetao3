@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:Projetao3/views/shared/constants.dart';
 
-class OiaListTile extends StatelessWidget {
+class ListItemComponent extends StatelessWidget {
   final String title;
   final String? subtitle;
   final Function onTap;
 
-  const OiaListTile(
+  const ListItemComponent(
       {Key? key, required this.title, required this.onTap, this.subtitle})
       : super(key: key);
 

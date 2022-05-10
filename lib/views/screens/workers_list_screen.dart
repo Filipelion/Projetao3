@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:Projetao3/core/locator.dart';
-import 'package:Projetao3/repository/professional_skills_repository.dart';
+import 'package:Projetao3/models/generic_user.dart';
+import 'package:Projetao3/views/components/bottom_navigation_component.dart';
+import 'package:Projetao3/views/components/list_item_component.dart';
+import 'package:Projetao3/views/components/sidebar_component.dart';
+import 'package:Projetao3/views/controllers/user_controller.dart';
+import 'package:Projetao3/views/controllers/worker_controller.dart';
+import 'package:Projetao3/views/providers/worker_viewmodel.dart';
 import 'package:Projetao3/views/shared/utils.dart';
-import 'services/login_service.dart';
-import 'views/shared/constants.dart';
-import 'services/tags_service.dart';
+import '../shared/constants.dart';
 
 class WorkersPage extends StatefulWidget {
   @override
@@ -29,70 +34,78 @@ class WorkersList extends StatefulWidget {
 }
 
 class _WorkersListState extends State<WorkersList> {
-  ProfessionalSkillsRepository _usuarioController =
-      locator<ProfessionalSkillsRepository>();
-  LoginService auth = locator<LoginService>();
+  late WorkerViewModel _workerViewModel;
 
-  TagsService _serverIntegration = TagsService();
-  List _suggestedTags;
-  Future<List<Map>> _workers;
+  var _userController = locator<UserController>();
+  var _workerController = locator<WorkerController>();
+
+  List? _suggestedTags;
+  Future<List<GenericUser>>? _workers;
 
   final _searchKey = GlobalKey<FormState>();
   final _searchController = TextEditingController();
-  String _textOnSearch = "Sem classificação";
+  String _searchTag = "Sem classificação";
 
   bool isLoggedIn = false;
-  String _uid;
+
+  String? _uid;
+
   @override
   void initState() {
     super.initState();
 
-    auth.authChangeListener();
-    if (auth.userIsLoggedIn()) {
+    _userController.authenticationStateMonitor();
+
+    if (_userController.isLoggedIn()) {
       setState(() {
         isLoggedIn = true;
-        _uid = auth.getUid();
-        this._updateLocationAndLastSeen();
+        _uid = _userController.uid;
       });
     } else {
       setState(() {
         isLoggedIn = false;
       });
     }
-    _workers = _usuarioController.getAllWorkers(_textOnSearch);
-  }
 
-  Future<void> _updateLocationAndLastSeen() async {
-    String vistoUltimo = _usuarioController.setVistoUltimo();
-    Map localizacao =
-        await _usuarioController.updateCurrentGeolocation(this._uid);
-
-    Map<String, dynamic> data = {
-      'visto_ultimo': vistoUltimo,
-      'localizacao': localizacao,
-    };
-
-    _usuarioController.update(this._uid, data);
-    print("Posição atualizada com sucesso!");
+    _workers = _userController.listAllWorkers(_searchTag);
+    _userController.listAllWorkers(_searchTag);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: OiaSidebar(),
-      bottomNavigationBar: isLoggedIn
-          ? OiaBottomBar()
-          : Container(
-              height: 0,
-              width: 0,
-            ),
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(),
-          _buildFutureBuilder(),
-        ],
-      ),
-    );
+    _workerViewModel = Provider.of<WorkerViewModel>(context);
+
+    return FutureBuilder(
+        future: _userController.updateLocationAndLastSeen(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.hasData) {
+            return Scaffold(
+              drawer: SidebarComponent(),
+              bottomNavigationBar: isLoggedIn
+                  ? BottomNavigationComponent()
+                  : Container(
+                      height: 0,
+                      width: 0,
+                    ),
+              body: CustomScrollView(
+                slivers: [
+                  _buildAppBar(),
+                  _buildFutureBuilder(),
+                ],
+              ),
+            );
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else {
+            return Center(
+              child: Container(
+                child:
+                    Text("Não foi possível listar os prestadores de serviços."),
+              ),
+            );
+          }
+        });
   }
 
   _buildAppBar() {
@@ -149,7 +162,7 @@ class _WorkersListState extends State<WorkersList> {
                             fillColor: Colors.white,
                           ),
                           validator: (value) {
-                            if (value.isEmpty)
+                            if (value != null && value.isEmpty)
                               return "Insira o nome da profissão";
                           },
                         ),
@@ -169,16 +182,16 @@ class _WorkersListState extends State<WorkersList> {
   }
 
   _onSaveFields() async {
-    if (_searchKey.currentState.validate()) {
-      _searchKey.currentState.save();
+    if (_searchKey.currentState != null &&
+        _searchKey.currentState!.validate()) {
+      _searchKey.currentState!.save();
       setState(() {
-        _textOnSearch = _searchController.text;
-        _workers = _usuarioController.getAllWorkers(_textOnSearch);
+        _searchTag = _searchController.text;
+        _workers = _userController.listAllWorkers(_searchTag);
       });
-      _searchKey.currentState.reset();
+      _searchKey.currentState!.reset();
 
-      Map clusterData =
-          await _serverIntegration.getSameClusterTags(tag: this._textOnSearch);
+      Map clusterData = await _workerController.getTags(_searchTag);
       this._suggestedTags = clusterData['tags'];
       print(this._suggestedTags);
     }
@@ -187,7 +200,7 @@ class _WorkersListState extends State<WorkersList> {
   _buildFutureBuilder() {
     return FutureBuilder(
         future: _workers,
-        builder: (context, snapshot) {
+        builder: (context, AsyncSnapshot<List<GenericUser>?> snapshot) {
           if (snapshot.hasData ||
               snapshot.connectionState == ConnectionState.done) {
             print(snapshot.data);
@@ -198,7 +211,7 @@ class _WorkersListState extends State<WorkersList> {
                       style: TextStyle(fontSize: Constants.mediumFontSize),
                     ),
                   )
-                : _buildSliverList(snapshot.data);
+                : _buildSliverList(snapshot.data!);
           } else if (snapshot.hasError) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text("Não foi possível acessar o app."),
@@ -221,22 +234,23 @@ class _WorkersListState extends State<WorkersList> {
     return SliverList(
         delegate: SliverChildBuilderDelegate(
       (context, index) {
-        String nomeUsuario = workers[index]['nome'];
+        String workerName = workers[index]['nome'];
         return Column(
           children: [
             Divider(height: 2.0),
-            OiaListTile(
-              title: nomeUsuario,
-              subtitle: _textOnSearch,
+            ListItemComponent(
+              title: workerName,
+              subtitle: _searchTag,
               onTap: () {
                 String uid = workers[index]['uid'];
-                Map args = {
-                  'uid': uid,
-                  'tag': _textOnSearch,
-                  'nome': nomeUsuario
-                };
 
-                Navigator.pushNamed(context, '/worker_info', arguments: args);
+                _workerViewModel.setWorker({
+                  'uid': uid,
+                  'tag': _searchTag,
+                  'nome': workerName,
+                });
+
+                Navigator.pushNamed(context, '/worker_info');
               },
             )
           ],

@@ -7,11 +7,11 @@ class CircularImageComponent extends StatelessWidget {
   final Color color;
 
   const CircularImageComponent(
-      {Key key,
-      this.width,
-      this.height,
-      this.borderWidth,
-      this.image,
+      {Key? key,
+      required this.width,
+      required this.height,
+      required this.borderWidth,
+      required this.image,
       this.color = Constants.COR_MOSTARDA})
       : super(key: key);
 

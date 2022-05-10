@@ -92,10 +92,18 @@ class _SidebarComponentState extends State<SidebarComponent> {
   }
 
   _buildSidebarHeader() {
+    String? profilePic = _loginService.getUserProfilePhoto();
+
+    if (profilePic == null) {
+      throw UnimplementedError(
+          "Implementar uma imagem padrão para quando o usuário não possuir foto de perfil.");
+    }
+
     ImageProvider userProfilePicture = NetworkImage(
-      _loginService.getUserProfilePhoto(),
+      profilePic,
       scale: 1.5,
     );
+
     String userName = _loginService.getUserProfileName() ?? "Usuário Anônimo";
     String userEmail = _loginService.getUserEmail() ?? "-";
 

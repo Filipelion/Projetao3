@@ -3,11 +3,20 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:Projetao3/core/interfaces/models/base_model.dart';
+import 'package:intl/intl.dart';
 
 class Utils {
   static screenDimensions(BuildContext context) => MediaQuery.of(context);
 
   static Object? getRouteArgs(BuildContext context) =>
       ModalRoute.of(context)?.settings.arguments;
+
+  static String setLastSeen() {
+    // Atualizando o horário
+    DateTime now = DateTime.now();
+    final formatter = DateFormat('dd/MM/yyyy');
+    String today = formatter.format(now);
+
+    return today;
+  }
 }

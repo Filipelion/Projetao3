@@ -3,12 +3,13 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:Projetao3/core/locator.dart';
+import 'package:Projetao3/views/controllers/user_controller.dart';
+import 'package:Projetao3/views/providers/worker_viewmodel.dart';
 import 'package:Projetao3/views/screens/base_screen.dart';
 import 'package:Projetao3/views/shared/utils.dart';
-import '../../custom_widgets/oiaWidgets.dart';
 import '../shared/constants.dart';
-import '../shared/constants.dart';
-import '../../services/firestore_service.dart';
 import '../../services/geolocation_service.dart';
 
 class MapScreen extends StatefulWidget {
@@ -18,10 +19,11 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   GeolocationService _geolocationIntegration = GeolocationService();
-  UsuarioController _usuarioController = UsuarioController();
+  final UserController _userController = locator<UserController>();
 
-  Future<List<LatLng>> _points;
-  String _idWorker;
+  late Future<List<LatLng>> _points;
+
+  late WorkerViewModel _workerViewModel;
 
   @override
   void initState() {
@@ -30,12 +32,12 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    setState(() {
-      _idWorker = Utils.getRouteArgs(context);
-      _points =
-          Future.delayed(Duration(seconds: 5), () => _getLocations(_idWorker));
-    });
-    print("$_idWorker está presente");
+    _workerViewModel = Provider.of<WorkerViewModel>(context);
+
+    _points = Future.delayed(
+      Duration(seconds: 5),
+      () => _getLocations(_workerViewModel.uid!),
+    );
 
     return BaseScreen(
       appBarTitle: "Localização",
@@ -64,8 +66,7 @@ class _MapScreenState extends State<MapScreen> {
     points.add(myPoints);
 
     // Coordenadas do prestador de servico
-    Position workerPosition =
-        await _usuarioController.getUsuarioLocation(idWorker);
+    Position workerPosition = await _userController.userLocation(idWorker);
     LatLng workerPoints =
         LatLng(workerPosition.latitude, workerPosition.longitude);
     points.add(workerPoints);
@@ -78,14 +79,14 @@ class _MapScreenState extends State<MapScreen> {
   _buildMap() {
     return FutureBuilder(
         future: _points,
-        builder: (context, snapshot) {
+        builder: (context, AsyncSnapshot<List<LatLng>?> snapshot) {
           if (snapshot.hasData ||
               snapshot.connectionState == ConnectionState.done) {
-            List<LatLng> points = snapshot.data;
+            List<LatLng> points = snapshot.data!;
             print(points);
             return Column(
               children: [
-                DisplayMap(points: points),
+                DisplayMap(from: points[0], to: points[1]),
                 Constants.MEDIUM_HEIGHT_BOX,
                 _buildDistanceText(points[0], points[1]),
               ],
@@ -112,23 +113,24 @@ class _MapScreenState extends State<MapScreen> {
 }
 
 class DisplayMap extends StatefulWidget {
-  final List<LatLng> points;
-  const DisplayMap({Key key, this.points}) : super(key: key);
+  final LatLng from, to;
+
+  const DisplayMap({Key? key, required this.from, required this.to})
+      : super(key: key);
+
   @override
   _DisplayMapState createState() => _DisplayMapState();
 }
 
 class _DisplayMapState extends State<DisplayMap> {
   Completer<GoogleMapController> _mapController = Completer();
-  LatLng _myLocation, _destineLocation;
 
   Set<Marker> _markers = HashSet<Marker>();
   int _markerIdCount = 1;
   List<String> _markersLabel = ['Onde estou', 'Prestador de Serviço'];
 
-  CameraPosition _initialPosition;
-
-  CameraPosition _destineCamera;
+  late LatLng _myLocation, _destineLocation;
+  late CameraPosition _initialPosition, _destineCamera;
 
   _moveCameraToDestine() async {
     final GoogleMapController controller = await _mapController.future;
@@ -136,6 +138,9 @@ class _DisplayMapState extends State<DisplayMap> {
   }
 
   _setMarkers(LatLng point, String title) {
+    int index = _markerIdCount - 1;
+    String label = _markersLabel[index];
+
     String markerIdValue = "marker_id_$_markerIdCount";
     _markerIdCount++;
 
@@ -155,20 +160,14 @@ class _DisplayMapState extends State<DisplayMap> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _myLocation = widget.points[0];
-      _destineLocation = widget.points[1];
-      for (var item in widget.points) {
-        int index = _markerIdCount - 1;
-        String label = _markersLabel[index];
-        _setMarkers(item, label);
-      }
-    });
 
-    _initialPosition = CameraPosition(
-      target: _myLocation,
-      zoom: 10,
-    );
+    _myLocation = widget.from;
+    _destineLocation = widget.to;
+
+    _setMarkers(_myLocation, _markersLabel[0]);
+    _setMarkers(_destineLocation, _markersLabel[1]);
+
+    _initialPosition = CameraPosition(target: _myLocation, zoom: 10);
 
     _destineCamera = CameraPosition(
       bearing: 192.8334901395799,

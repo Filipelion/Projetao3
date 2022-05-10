@@ -1,19 +1,16 @@
-import 'dart:async';
-
-import 'package:Projetao3/models/crudServicosArgs.dart';
-import 'package:Projetao3/models/cartaServico.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:Projetao3/core/enums/gender.dart';
+import 'package:Projetao3/core/locator.dart';
 import 'package:flutter/material.dart';
-import 'package:Projetao3/models/skills_crud_argument.dart';
+import 'package:Projetao3/models/generic_user.dart';
+import 'package:Projetao3/models/professional_skills_list.dart';
 import 'package:Projetao3/views/components/button_component.dart';
 import 'package:Projetao3/views/components/card_component.dart';
+import 'package:Projetao3/views/components/circular_image_component.dart';
+import 'package:Projetao3/views/controllers/user_controller.dart';
+import 'package:Projetao3/views/providers/user_viewmodel.dart';
 import 'package:Projetao3/views/screens/base_screen.dart';
-import '../../custom_widgets/oiaWidgets.dart';
-import '../../models/cartaServico.dart';
 import '../shared/constants.dart';
-import '../../services/login_service.dart';
-import '../../services/firestore_service.dart';
-import '../../infrastructure/usuario.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -21,60 +18,65 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  LoginService auth;
-  bool isLoggedIn = true;
-  TextEditingController _controllerNome;
+  late TextEditingController _controllerNome;
   final _formKey = GlobalKey<FormState>();
 
   // Dropdown de gêneros
   List _generos = ['Feminino', 'Masculino', 'Não binário', 'Prefiro não dizer'];
-  String _dropdownValue;
+  late String _dropdownValue;
 
   // Dados do usuario
-  final _usuarioController = DatabaseIntegration.usuarioController;
-  final _cartaServicosController = DatabaseIntegration._skillsRepository;
+  UserController _userController = locator<UserController>();
 
-  FutureOr<Usuario> _usuario;
-  CartaServicos _cartaServicos;
+  GenericUser? _user;
+  ProfessionalSkillsList? _skills;
+
+  late UserViewModel _userViewModel;
+
+  bool isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    auth = locator<LoginService>();
-    auth.authChangeListener();
-    String controllerText = !isLoggedIn ? "" : auth.getUserProfileName();
+    _userController.authenticationStateMonitor();
+
+    String controllerText = _userController.userName ?? "";
     _controllerNome = TextEditingController(text: controllerText);
-    if (auth.userIsLoggedIn()) {
-      setState(() {
-        isLoggedIn = true;
-      });
-    }
+
+    isLoggedIn = _userController.isLoggedIn();
   }
 
   _onSaveFields() async {
-    if (_formKey.currentState.validate()) {
-      _formKey.currentState.save();
-      String uid = auth.getUid();
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      String? uid = _userController.uid;
       String nome = _controllerNome.value.text.toString();
       String genero = _dropdownValue;
-      String email = auth.getUserEmail();
-      DocumentReference servicos =
-          await _cartaServicosController.save(_cartaServicos);
+      String? email = _userController.email;
 
-      _usuario = Usuario(
-        uid: uid,
-        name: nome,
-        gender: genero,
-        email: email,
-        _skills: servicos,
-      );
-      _usuarioController.saveUsuario(_usuario);
+      if (_skills != null) {
+        await _userController.saveSkills(_skills!);
+
+        _user = GenericUser(
+          uid: uid!,
+          name: nome,
+          gender: Gender.Other, // TODO: remember to mock out this.
+          email: email!,
+          skills: _skills!.list,
+        );
+      }
+
+      _userController.saveUser(_user!);
+
       Navigator.pushNamed(context, '/workers');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    _userViewModel = Provider.of<UserViewModel>(context);
+
     return BaseScreen(
       appBarTitle: "Perfil",
       body: isLoggedIn
@@ -93,21 +95,24 @@ class _ProfileState extends State<Profile> {
   }
 
   _buildProfilePage() {
-    _cartaServicos = ModalRoute.of(context).settings.arguments;
-    List _categorias = _cartaServicos.tipos();
+    _skills = _userViewModel.professionalSkills;
+
+    List _categorias =
+        _skills != null ? _skills!.list.map((e) => e.name).toList() : [];
 
     return SingleChildScrollView(
       child: Column(
         children: [
           Constants.LARGE_HEIGHT_BOX,
-          Center(
-            child: OiaRoundedImage(
-              width: 120,
-              height: 120,
-              borderWidth: 5,
-              image: NetworkImage(auth.getUserProfilePhoto()),
+          if (_userController.photo != null)
+            Center(
+              child: CircularImageComponent(
+                width: 120,
+                height: 120,
+                borderWidth: 5,
+                image: NetworkImage(_userController.photo!),
+              ),
             ),
-          ),
           Constants.LARGE_HEIGHT_BOX,
           Form(
             key: _formKey,
@@ -130,9 +135,9 @@ class _ProfileState extends State<Profile> {
                     .map<DropdownMenuItem<String>>((genero) =>
                         DropdownMenuItem(value: genero, child: Text(genero)))
                     .toList(),
-                onChanged: (String newValue) {
+                onChanged: (String? newValue) {
                   setState(() {
-                    _dropdownValue = newValue;
+                    _dropdownValue = newValue!;
                   });
                 },
                 validator: (value) {
@@ -176,10 +181,10 @@ class _ProfileState extends State<Profile> {
                       return CardComponent(
                         title: tipo,
                         onTap: () {
-                          var args = SkillsCrudArguments(
-                              skillName: tipo, skillsList: _cartaServicos);
-                          Navigator.pushNamed(context, '/servico',
-                              arguments: args);
+                          _userViewModel.setSelectedSkill(tipo);
+                          _userViewModel.setSkills(_skills!);
+
+                          Navigator.pushNamed(context, '/servico');
                         },
                       );
                     })),

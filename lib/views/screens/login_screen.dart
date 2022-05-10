@@ -1,13 +1,9 @@
-import 'dart:async';
 import 'package:Projetao3/core/locator.dart';
 import 'package:Projetao3/repository/user_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:Projetao3/views/controllers/login_controller.dart';
 import 'package:Projetao3/views/shared/utils.dart';
 import '../shared/constants.dart';
-import '../../services/login_service.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -18,25 +14,19 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        future: _connectToFirebase(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return LoginPage();
-          } else if (snapshot.connectionState == ConnectionState.none) {
-            Scaffold.of(context).showBottomSheet((context) => Text(
-                "App temporariamente indisponível. Tente novamente mais tarde"));
-          }
-          return _buildLoadingPage();
-        },
-      ),
+      body: LoginPage(),
+      // body: FutureBuilder(
+      //   future: _connectToFirebase(),
+      //   builder: (context, snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.done) {
+      //     } else if (snapshot.connectionState == ConnectionState.none) {
+      //       Scaffold.of(context).showBottomSheet((context) => Text(
+      //           "App temporariamente indisponível. Tente novamente mais tarde"));
+      //     }
+      //     return _buildLoadingPage();
+      //   },
+      // ),
     );
-  }
-
-  Future<FirebaseApp> _connectToFirebase() async {
-    FirebaseApp defaultApp = await Firebase.initializeApp();
-    firebaseAuth = FirebaseAuth.instanceFor(app: defaultApp);
-    return defaultApp;
   }
 
   Widget _buildLoadingPage() {
@@ -67,33 +57,9 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
-  void _googleSignIn() {
-    auth.signInWithGoogle().then((value) {
-      if (value != null) {
-        String id = value.uid;
-        _showLoadingSnackbar();
-        _goToNextPage(id);
-      } else {
-        _showErrorSnackbar();
-      }
-    });
-  }
-
-  void _facebookSignIn() {
-    auth.signInWithFacebook().then((value) {
-      if (value != null) {
-        String id = value.uid;
-        _showLoadingSnackbar();
-        _goToNextPage(id);
-      } else {
-        _showErrorSnackbar();
-      }
-    });
-  }
-
   _goToNextPage(String id) async {
     debugPrint("goToNextPage was called");
-    if (await _userRepository.usuarioIsInDatabase(id)) {
+    if (await _userRepository.userExists(id)) {
       Navigator.popAndPushNamed(context, '/workers');
     } else {
       Navigator.popAndPushNamed(context, '/service_registration');
@@ -101,12 +67,12 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _showLoadingSnackbar() {
-    _scaffoldState.currentState
+    ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text("Fazendo login...")));
   }
 
   _showErrorSnackbar() {
-    _scaffoldState.currentState.showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
             "Não foi possível realizar o login. Tente novamente mais tarde.")));
   }
@@ -168,7 +134,8 @@ class _LoginPageState extends State<LoginPage> {
                       "Login com Facebook",
                       style: TextStyle(fontSize: Constants.smallFontSize),
                     ),
-                    onPressed: _facebookSignIn,
+                    onPressed: () async =>
+                        await _loginController.facebookSignin(),
                   ),
                 ),
               ],

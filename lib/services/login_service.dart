@@ -96,7 +96,13 @@ class LoginService {
     }
   }
 
-  String? getUserProfilePhoto() => this.getUser()?.photoURL;
+  String? getUserProfilePhoto() {
+    if (this.getUser()?.photoURL == null) {
+      throw UnimplementedError("Definir uma imagem de usuário padrão.");
+    }
+
+    return this.getUser()?.photoURL;
+  }
 
   String? getUserProfileName() => this.getUser()?.displayName;
 

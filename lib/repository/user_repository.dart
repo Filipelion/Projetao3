@@ -9,9 +9,9 @@ import 'package:Projetao3/repository/shared/tables_name.dart';
 import 'package:Projetao3/services/login_service.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import 'package:Projetao3/views/shared/utils.dart';
 import '../services/login_service.dart';
 import '../services/geolocation_service.dart';
-import 'package:intl/intl.dart';
 
 // TODO: Kill file
 class UserRepository {
@@ -29,6 +29,19 @@ class UserRepository {
   Future<DocumentSnapshot> _getUsuarioByID(String id) async {
     DocumentReference reference = await this._getDocumentReference(id);
     return reference.get();
+  }
+
+  Future<GenericUser> updateUser(String uid, GenericUser user) async {
+    try {
+      DocumentReference reference = await this._getDocumentReference(uid);
+      await reference.update(user.toJson());
+
+      return user;
+    } catch (e) {
+      throw FirebaseException(
+          plugin: "",
+          message: "Não foi possível atualizar os dados do usuário");
+    }
   }
 
   Future<GenericUser> getUser(String id) async {
@@ -88,26 +101,17 @@ class UserRepository {
     }
   }
 
-  void saveUsuario(GenericUser usuario) async {
+  Future<void> save(GenericUser usuario) async {
     String uid = usuario.uid;
     Map usuarioData = usuario.toJson();
-    usuarioData['visto_ultimo'] = this.setVistoUltimo();
+    usuarioData['visto_ultimo'] = Utils.setLastSeen();
     usuarioData['localizacao'] = await this.updateCurrentGeolocation(uid);
 
     _usuarios.doc(uid).set(usuarioData);
   }
 
-  removeUsuario(String id) async {
+  Future<void> deleteAccount(String id) async {
     return await _usuarios.doc(id).delete();
-  }
-
-  String setVistoUltimo() {
-    // Atualizando o horário
-    DateTime now = DateTime.now();
-    final formatter = DateFormat('dd/MM/yyyy');
-    String today = formatter.format(now);
-
-    return today;
   }
 
   Future<ProfessionalSkillsList> getUserSkillsList(String id) async {
@@ -131,13 +135,13 @@ class UserRepository {
     return localizacaoData;
   }
 
-  Future<Position> getUsuarioLocation(String id) async {
+  Future<Position> getUserLocation(String id) async {
     GenericUser user = await this.getUser(id);
     return user.position!;
   }
 
   Future<void> update(String uid, Map<String, dynamic> data) async {
     DocumentReference ref = await this._getDocumentReference(uid);
-    ref.update(data);
+    await ref.update(data);
   }
 }

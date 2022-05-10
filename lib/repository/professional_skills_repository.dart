@@ -31,6 +31,18 @@ class ProfessionalSkillsRepository {
     return cartaServicos;
   }
 
+  Future<DocumentReference> addSkill(
+    ProfessionalSkill skill,
+    ProfessionalSkillsList occupations,
+  ) async {
+    // Adding a service to the end of the list.
+    var data = occupations.list;
+    data.add(skill);
+
+    occupations.list = data;
+    return await save(occupations);
+  }
+
   Future<DocumentReference> save(ProfessionalSkillsList cartaServicos) async {
     var data = cartaServicos.list;
     String id = cartaServicos.id;

@@ -1,31 +1,32 @@
-import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:Projetao3/core/locator.dart';
 import 'package:Projetao3/repository/professional_skills_repository.dart';
+import 'package:Projetao3/views/components/button_component.dart';
+import 'package:Projetao3/views/providers/worker_viewmodel.dart';
 import 'package:Projetao3/views/screens/base_screen.dart';
 import 'package:Projetao3/views/shared/utils.dart';
-import '../../custom_widgets/oiaWidgets.dart';
 import '../shared/constants.dart';
-import '../../custom_widgets/oiaWidgets.dart';
-import '../../infrastructure/imageProvider.dart';
-import '../../services/firestore_service.dart';
-import '../../infrastructure/imageProvider.dart';
+import '../../services/image_service.dart';
 
-class WorkerProfile extends StatefulWidget {
+class WorkerProfileScreen extends StatefulWidget {
   @override
-  _WorkerProfileState createState() => _WorkerProfileState();
+  _WorkerProfileScreenState createState() => _WorkerProfileScreenState();
 }
 
-class _WorkerProfileState extends State<WorkerProfile> {
-  String _uid, _tag, nomeUsuario, _descricao;
-  num _valorMedio;
+class _WorkerProfileScreenState extends State<WorkerProfileScreen> {
+  String? _descricao;
+  late num _valorMedio;
 
-  final imageProvider = OiaImageProvider();
+  late WorkerViewModel _workerViewModel;
+
+  final imageProvider = ImageService();
   ProfessionalSkillsRepository _skillsRepository =
       locator<ProfessionalSkillsRepository>();
 
-  Future<List> _imagens;
-  List _imagensURL;
+  // TODO: Those attributes will be used on the service images carousel.
+  Future<List>? _imagens;
+  List? _imagensURL;
 
   @override
   void initState() {
@@ -34,34 +35,38 @@ class _WorkerProfileState extends State<WorkerProfile> {
 
   @override
   Widget build(BuildContext context) {
-    Map? args = Utils.getRouteArgs(context);
+    _workerViewModel = Provider.of<WorkerViewModel>(context);
+
+    var _tag = _workerViewModel.tag;
+
+    if (_tag == null) {
+      throw Exception("A tag não pode ser nula");
+    }
 
     setState(() {
-      _uid = args['uid'];
-      _tag = args['tag'];
-      nomeUsuario = args['nome'];
+      _skillsRepository.get(_workerViewModel.uid!).then((value) {
+        var skills = value.list;
 
-      _skillsRepository.get(_uid).then((value) {
-        Map cartaServicos = value.cartaServicos;
-        _descricao = cartaServicos[_tag]['descricao'];
-        _valorMedio = cartaServicos[_tag]['valorMedio'];
+        var skill = skills.where((element) => element.name == _tag).first;
+        _descricao = skill.description;
+        _valorMedio = skill.meanValue ?? 0;
       });
 
       _imagens = Future.delayed(
         Duration(seconds: 4),
-        () => imageProvider.getAllImagesOfAService(_uid, _tag),
+        () => imageProvider.getServiceImages(_workerViewModel.uid!, _tag),
       );
     });
 
     return BaseScreen(
       showBottomBar: true,
-      appBarTitle: nomeUsuario,
+      appBarTitle: _workerViewModel.name ?? "",
       body: FutureBuilder(
           future: _imagens,
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.done:
-                _imagensURL = snapshot.data ?? [];
+                _imagensURL = snapshot.data as List;
                 return _buildBody();
                 break;
               case ConnectionState.none:
@@ -84,7 +89,7 @@ class _WorkerProfileState extends State<WorkerProfile> {
       child: Column(
         children: [
           Constants.SMALL_HEIGHT_BOX,
-          _buildCarousel(_imagensURL),
+          // _buildCarousel(_imagensURL),
           Constants.LARGE_HEIGHT_BOX,
           Container(
             decoration: BoxDecoration(
@@ -142,14 +147,14 @@ class _WorkerProfileState extends State<WorkerProfile> {
             ),
           ),
           Constants.LARGE_HEIGHT_BOX,
-          OiaLargeButton(
+          ButtonComponent(
             title: "Encontrar no mapa",
             onPressed: () {
-              Navigator.pushNamed(context, '/map', arguments: _uid);
+              Navigator.pushNamed(context, '/map');
             },
           ),
           // TODO: Implementar tela de salvar contato
-          OiaLargeButton(
+          ButtonComponent(
             title: "Salvar contato",
             onPressed: () {},
           ),
@@ -159,16 +164,18 @@ class _WorkerProfileState extends State<WorkerProfile> {
     );
   }
 
-  _buildCarousel(List imagens) {
-    return SizedBox(
-      height: Utils.screenDimensions(context).size.height * 0.35,
-      width: Utils.screenDimensions(context).size.width * 0.8,
-      child: Carousel(
-        images: imagens.map((e) => Image.network(e)).toList(),
-        borderRadius: true,
-        autoplay: false,
-        animationDuration: Duration(milliseconds: 600),
-      ),
-    );
-  }
+  // _buildCarousel(List imagens) {
+  //   throw UnimplementedError("Carrossel não implementado!! Procurar lib.");
+
+  //   return SizedBox(
+  //     height: Utils.screenDimensions(context).size.height * 0.35,
+  //     width: Utils.screenDimensions(context).size.width * 0.8,
+  //     child: Carousel(
+  //       images: imagens.map((e) => Image.network(e)).toList(),
+  //       borderRadius: true,
+  //       autoplay: false,
+  //       animationDuration: Duration(milliseconds: 600),
+  //     ),
+  //   );
+  // }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:Projetao3/core/locator.dart';
+import 'package:Projetao3/models/professional_skills_list.dart';
 import 'package:Projetao3/repository/professional_skills_repository.dart';
 import 'package:Projetao3/services/login_service.dart';
 import 'package:Projetao3/views/shared/constants.dart';
@@ -11,11 +12,13 @@ class BottomNavigationComponent extends StatefulWidget {
 }
 
 class _BottomNavigationComponentState extends State<BottomNavigationComponent> {
+  final ProfessionalSkillsRepository _skillsRepository =
+      locator<ProfessionalSkillsRepository>();
   List _routes = ['/workers', '/service_registration', '/profile'];
   int _currentIndex = 0;
   LoginService _loginService = locator<LoginService>();
   bool _isLoggedIn = false;
-  String _uid;
+  String? _uid;
 
   @override
   void initState() {
@@ -42,10 +45,11 @@ class _BottomNavigationComponentState extends State<BottomNavigationComponent> {
 
     try {
       if (index == 2) {
-        ProfessionalSkillsRepository _skillsRepository =
-            locator<ProfessionalSkillsRepository>();
-
-        Future<CartaServicos> cartaServicos = _skillsRepository.get(_uid);
+        if (_uid == null) {
+          throw UnimplementedError("Nenhum uid informado.");
+        }
+        Future<ProfessionalSkillsList> cartaServicos =
+            _skillsRepository.get(_uid!);
 
         cartaServicos.then((value) {
           Navigator.pushNamed(context, route, arguments: value);
