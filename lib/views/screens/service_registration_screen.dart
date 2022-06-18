@@ -89,9 +89,9 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
                           fillColor: Constants.COR_MOSTARDA,
                           isDense: true,
                         ),
-                        onChanged: (texto) {
+                        onChanged: (text) {
                           setState(() {
-                            this.searchText = texto;
+                            this.searchText = text;
                           });
                         },
                         validator: (String? text) {
@@ -276,7 +276,7 @@ class _ServiceRegistrationState extends State<ServiceRegistration> {
       var skills = await _userController.getSkills(uid);
 
       if (skills != null) {
-        _userViewModel.setSKills(skills);
+        _userViewModel.setSelectedSkill(skills.toString());
       }
 
       return skills;

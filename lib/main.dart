@@ -8,7 +8,7 @@ import 'views/screens/service_registration_screen.dart';
 import 'views/screens/login_screen.dart';
 import 'views/screens/register_screen.dart';
 import 'views/screens/workers_list_screen.dart';
-import 'views/screens/skills_crud.dart';
+import 'views/screens/skills_management_screen.dart';
 import 'views/screens/worker_profile_screen.dart';
 import 'views/screens/profile_screen.dart';
 import 'views/screens/map_screen.dart';
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
       '/service_registration': (context) => ServiceRegistration(),
       '/profile': (context) => Profile(),
       '/servico': (context) => SkillsCrud(),
-      '/worker_info': (context) => WorkerProfile(),
+      '/worker_info': (context) => WorkerProfileScreen(),
       '/map': (context) => MapScreen(),
     };
   }
