@@ -17,6 +17,12 @@ uses-sdk
 INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml
 INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml
+INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml
+INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml
+		ADDED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml
+		INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml
 	android:minSdkVersion
 		INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml
 		ADDED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/google_sign_in_android-5.2.6/android/src/main/AndroidManifest.xml

@@ -13,6 +13,12 @@ uses-sdk
 INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml
 INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml
+INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml
+INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml
+		ADDED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml
+		INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml
 	android:minSdkVersion
 		INJECTED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml
 		ADDED from /home/filipe/Development/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_auth-4.3.3/android/src/main/AndroidManifest.xml

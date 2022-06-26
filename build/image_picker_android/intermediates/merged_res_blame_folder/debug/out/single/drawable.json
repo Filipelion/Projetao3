@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/home/filipe/Workstation/development/Projetao3/build/image_picker_android/intermediates/res/merged/debug/drawable/notification_bg.xml",
+        "source": "/home/filipe/.gradle/caches/transforms-3/bda401e48baa62bb12eb21c136fd8ed5/transformed/core-1.6.0/res/drawable/notification_bg.xml"
+    },
+    {
+        "merged": "/home/filipe/Workstation/development/Projetao3/build/image_picker_android/intermediates/res/merged/debug/drawable/notification_icon_background.xml",
+        "source": "/home/filipe/.gradle/caches/transforms-3/bda401e48baa62bb12eb21c136fd8ed5/transformed/core-1.6.0/res/drawable/notification_icon_background.xml"
+    },
+    {
+        "merged": "/home/filipe/Workstation/development/Projetao3/build/image_picker_android/intermediates/res/merged/debug/drawable/notification_bg_low.xml",
+        "source": "/home/filipe/.gradle/caches/transforms-3/bda401e48baa62bb12eb21c136fd8ed5/transformed/core-1.6.0/res/drawable/notification_bg_low.xml"
+    },
+    {
+        "merged": "/home/filipe/Workstation/development/Projetao3/build/image_picker_android/intermediates/res/merged/debug/drawable/notification_tile_bg.xml",
+        "source": "/home/filipe/.gradle/caches/transforms-3/bda401e48baa62bb12eb21c136fd8ed5/transformed/core-1.6.0/res/drawable/notification_tile_bg.xml"
+    }
+]
