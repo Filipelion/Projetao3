@@ -261,7 +261,7 @@
     },
     {
         "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/layout_browser_actions_context_menu_page.xml.flat",
-        "source": "/home/filipe/.gradle/caches/transforms-2/files-2.1/0541fa5e38d1897cfbdc1992e7cb4505/browser-1.0.0/res/layout/browser_actions_context_menu_page.xml"
+        "source": "/home/filipe/.gradle/caches/transforms-2/files-2.1/2577b883fe2e1986b7bfd13ec787e8ef/browser-1.4.0/res/layout/browser_actions_context_menu_page.xml"
     },
     {
         "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/drawable-xhdpi-v4_abc_ic_menu_selectall_mtrl_alpha.png.flat",
@@ -493,7 +493,7 @@
     },
     {
         "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/layout_browser_actions_context_menu_row.xml.flat",
-        "source": "/home/filipe/.gradle/caches/transforms-2/files-2.1/0541fa5e38d1897cfbdc1992e7cb4505/browser-1.0.0/res/layout/browser_actions_context_menu_row.xml"
+        "source": "/home/filipe/.gradle/caches/transforms-2/files-2.1/2577b883fe2e1986b7bfd13ec787e8ef/browser-1.4.0/res/layout/browser_actions_context_menu_row.xml"
     },
     {
         "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/layout_notification_media_action.xml.flat",
@@ -750,6 +750,10 @@
     {
         "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/drawable_btn_radio_off_to_on_mtrl_animation.xml.flat",
         "source": "/home/filipe/.gradle/caches/transforms-2/files-2.1/312b34eb4fe03382af389636632267ce/appcompat-1.1.0/res/drawable/btn_radio_off_to_on_mtrl_animation.xml"
+    },
+    {
+        "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/xml_image_share_filepaths.xml.flat",
+        "source": "/home/filipe/.gradle/caches/transforms-2/files-2.1/2577b883fe2e1986b7bfd13ec787e8ef/browser-1.4.0/res/xml/image_share_filepaths.xml"
     },
     {
         "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/drawable_common_google_signin_btn_text_light_focused.xml.flat",
@@ -2166,6 +2170,10 @@
     {
         "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/drawable-mdpi-v4_abc_list_pressed_holo_dark.9.png.flat",
         "source": "/home/filipe/.gradle/caches/transforms-2/files-2.1/312b34eb4fe03382af389636632267ce/appcompat-1.1.0/res/drawable-mdpi-v4/abc_list_pressed_holo_dark.9.png"
+    },
+    {
+        "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/raw_keep.xml.flat",
+        "source": "/home/filipe/.gradle/caches/transforms-2/files-2.1/10b62f7d32f4bc558b6d6a287bb2d53a/jetified-firebase-common-20.1.1/res/raw/keep.xml"
     },
     {
         "merged": "/home/filipe/Workstation/development/Projetao3/build/app/intermediates/res/merged/debug/anim_btn_checkbox_to_unchecked_icon_null_animation.xml.flat",
