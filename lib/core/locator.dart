@@ -9,6 +9,7 @@ import 'package:Projetao3/services/login_service.dart';
 import 'package:Projetao3/services/tags_service.dart';
 import 'package:Projetao3/views/controllers/login_controller.dart';
 import 'package:Projetao3/views/controllers/user_controller.dart';
+import 'package:Projetao3/views/controllers/worker_controller.dart';
 
 GetIt locator = GetIt.instance;
 
@@ -29,4 +30,5 @@ setupLocator() {
   // Create controllers instances
   locator.registerLazySingleton(() => LoginController());
   locator.registerLazySingleton(() => UserController());
+  locator.registerLazySingleton(() => WorkerController());
 }
