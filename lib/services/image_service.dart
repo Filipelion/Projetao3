@@ -21,6 +21,7 @@ class ImageService {
     if (imageFile != null) {
       return File(imageFile.path);
     }
+    return null;
   }
 
   Future<String?> sendImage(ImageSource source, String tipo, String uid) async {

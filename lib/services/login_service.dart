@@ -69,7 +69,7 @@ class LoginService {
 
       return user;
     } catch (e) {
-      print("Aconteceu um erro: $e");
+      print("We got an error: $e");
       return null;
     }
   }
@@ -91,7 +91,7 @@ class LoginService {
         return user;
       }
     } catch (e) {
-      print("Aconteceu um erro: $e");
+      print("We got an error: $e");
       return null;
     }
   }

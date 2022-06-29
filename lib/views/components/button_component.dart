@@ -13,14 +13,16 @@ class ButtonComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: this.width ?? Utils.screenDimensions(context).size.width * 0.8,
-      child: RaisedButton(
+      child: ElevatedButton(
         child: Text(
           this.title ?? "Enviar",
           style: TextStyle(
               fontSize: Constants.regularFontSize, color: Colors.white),
         ),
         onPressed: () async => this.onPressed,
-        color: Constants.COR_VINHO,
+        style: ElevatedButton.styleFrom(
+          primary: Constants.COR_VINHO,
+        ),
       ),
     );
   }

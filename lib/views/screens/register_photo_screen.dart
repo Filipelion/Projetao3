@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// TODO: finish this screen
 class RegisterPhotoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -12,10 +13,10 @@ class RegisterPhotoPage extends StatelessWidget {
           Container(
               height: 200,
               child: Center(
-                child: Text("Passa reto boy 3", style: TextStyle(fontSize: 30)),
+                child: Text("....", style: TextStyle(fontSize: 30)),
               )),
-          RaisedButton(
-              child: Text("Passar reto"),
+          ElevatedButton(
+              child: Text("...."),
               onPressed: () {
                 //Navigator.pushNamed(context, '/login');
               }),
